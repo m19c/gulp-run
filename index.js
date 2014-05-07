@@ -19,6 +19,9 @@ var parser = require('./command-parser');
 /// the child processes's stdin. You can also run the command directly with
 /// `run(command).exec(callback)`.
 ///
+/// Additionally, `./node_modules/.bin` is prepended to the PATH for the child process, so you have
+/// access to all the binaries provided by your module's dependencies.
+///
 /// ### Arguments
 /// 1. `command` *(String)*: The command to run.
 ///
@@ -51,7 +54,7 @@ var run = module.exports = function (command) {
 	/// gulp.task('even-lines', function () {
 	///     // Extracts the even lines from the input files
 	///     gulp.src('path/to/input/*')
-	///         .pipe(run(awk "NR % 2 == 0"))
+	///         .pipe(run('awk "NR % 2 == 0"'))
 	///         .pipe(gulp.dest('path/to/output'));
 	/// });
 	/// ```
@@ -91,7 +94,7 @@ var run = module.exports = function (command) {
 	}
 
 
-	/// Use as a standalone to run commands
+	/// Use gulp-run as a standalone
 	/// --------------------------------------------------
 	/// ### Example
 	///
