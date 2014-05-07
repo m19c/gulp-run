@@ -1,27 +1,31 @@
 {
-  "name": "gulp-run",
-  "version": "0.0.0",
-  "description": "Pipe to shell commands in gulp",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/cbarrick/gulp-run.git"
-  },
-  "keywords": [
-    "gulpplugin",
-    "gulp",
-    "run",
-    "shell",
-    "command",
-    "sh"
-  ],
-  "author": "Chris Barrick <cbarrick1@gmail.com>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/cbarrick/gulp-run/issues"
-  },
-  "homepage": "https://github.com/cbarrick/gulp-run"
+	"name": "gulp-run",
+	"version": "0.1.0",
+	"description": "Pipe to shell commands in gulp",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/cbarrick/gulp-run.git"
+	},
+	"keywords": [
+		"gulpplugin",
+		"gulp",
+		"run",
+		"shell",
+		"command",
+		"sh"
+	],
+	"author": "Chris Barrick <cbarrick1@gmail.com>",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/cbarrick/gulp-run/issues"
+	},
+	"homepage": "https://github.com/cbarrick/gulp-run",
+	"devDependencies": {
+		"canopy": "^0.2.0",
+		"gulp": "^3.6.2"
+	}
 }
