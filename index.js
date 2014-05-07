@@ -9,7 +9,7 @@
 var child_process = require('child_process');
 var stream = require('stream');
 
-var parser = require('./command-parser');
+var parser = require('./lib/command-parser');
 
 
 /// `run(command)`

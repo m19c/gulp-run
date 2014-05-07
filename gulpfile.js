@@ -3,7 +3,7 @@ var run = require('./');
 
 
 gulp.task('build-parser', function (done) {
-	run('canopy ./command-parser.peg').exec(done);
+	run('canopy lib/command-parser.peg').exec(done);
 });
 
 
