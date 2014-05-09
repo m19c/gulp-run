@@ -4,7 +4,7 @@
 	"description": "Pipe to shell commands in gulp",
 	"main": "index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "./node_modules/.bin/mocha spec"
 	},
 	"repository": {
 		"type": "git",
@@ -26,6 +26,11 @@
 	"homepage": "https://github.com/cbarrick/gulp-run",
 	"devDependencies": {
 		"canopy": "^0.2.0",
-		"gulp": "^3.6.2"
+		"chai": "^1.9.1",
+		"gulp": "^3.6.2",
+		"mocha": "^1.18.2"
+	},
+	"dependencies": {
+		"vinyl": "^0.2.3"
 	}
 }
