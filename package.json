@@ -2,7 +2,7 @@
 	"name": "gulp-run",
 	"version": "1.0.0",
 	"description": "Pipe to shell commands in gulp",
-	"main": "index.js",
+	"main": "gulp-run.js",
 	"scripts": {
 		"test": "./node_modules/.bin/mocha spec"
 	},
