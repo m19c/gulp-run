@@ -1,8 +1,6 @@
 /// gulp-run
 /// ==================================================
 /// Pipe to shell commands in gulp.
-///
-/// `var run = require('gulp-run')`
 
 'use strict';
 
@@ -54,27 +52,31 @@ var run = module.exports = function (command) {
 	env.PATH = './node_modules/.bin:' + env.PATH;
 
 	// The object we return.
-	var stream = new Stream.Transform({objectMode: true});
-	stream._transform = function (file, enc, done) {
+	var command_stream = new Stream.Transform({objectMode: true});
+	command_stream._transform = function (file, enc, done) {
 
+		// Null files pass through
 		if (file.isNull()) {
-			stream.push(file);
+			command_stream.push(file);
 			process.nextTick(done);
 			return;
 		}
 
+		// Spawn the command
 		var child = child_process.spawn(cmd, args, {env:env});
-		file.pipe(child.stdin)
+		child.stdin.on('error', command_stream.emit.bind(command_stream, 'error'));
+		child.stdout.on('error', command_stream.emit.bind(command_stream, 'error'));
+		file.pipe(child.stdin);
 
 		// Streams - pass the child's stdout through
 		if (file.isStream()) {
 			file.contents = child.stdout;
-			stream.push(file);
+			command_stream.push(file);
 			process.nextTick(done);
 			return;
 		}
 
-		// Buffers - buffer the entier output before continuing the pipeline
+		// Buffers - buffer the entire output before continuing the pipeline
 		if (file.isBuffer()) {
 			file.contents = new Buffer(0);
 			var stdout = child.stdout;
@@ -88,15 +90,15 @@ var run = module.exports = function (command) {
 				}
 			});
 			stdout.on('end', function () {
-				stream.push(file);
+				command_stream.push(file);
 				process.nextTick(done);
 			});
 			return;
 		}
 
-		// Anything else
-		// TODO: file is neither a stream nor a buffer nor null.
-		// Throw an error.
+		// Else - can't handle the file
+		command_stream.emit('error');
+		throw new Error("Received a file that is neither a stream nor a buffer");
 	}
 
 
@@ -123,38 +125,37 @@ var run = module.exports = function (command) {
 	/// })
 	/// ```
 
-	stream.exec = function (print) {
+	command_stream.exec = function (print) {
+		// Spawn the command
 		var child = child_process.spawn(cmd, args, {env:env});
-
+		child.stdin.on('error', command_stream.emit.bind(command_stream, 'error'));
+		child.stdout.on('error', command_stream.emit.bind(command_stream, 'error'));
 		child.stdin.end();
 
+		// A stream to tee input to stdout
+		var tee = new Stream.Transform();
+		tee._transform = function (chunk, enc, callback) {
+			process.stdout.write('[' + cmd + '] ' + chunk.toString());
+			tee.push(chunk);
+			process.nextTick(callback);
+			return;
+		}
+
+		// The file to be pushed down stream
 		var file = new Vinyl({
-			contents: (print) ? child.stdout.pipe(tee(cmd)) : child.stdout,
+			contents: (print) ? child.stdout.pipe(tee) : child.stdout,
 			path: cmd
 		});
 
-		var exec_stream = new Stream.Transform({objectMode:true});
-		exec_stream._transform = function (file, enc, callback) {
-			exec_stream.push(file);
+		// The vinyl stream
+		var stream = new Stream.Transform({objectMode:true});
+		stream._transform = function (file, enc, callback) {
+			stream.push(file);
 			process.nextTick(callback);
 		};
-		exec_stream.end(file);
-
-		return exec_stream;
+		stream.end(file);
+		return stream;
 	}
 
-	return stream;
-}
-
-
-// Tee's a stream to stdout, prepending lines with a title.
-var tee = function (title) {
-	var stream = new Stream.Transform();
-	stream._transform = function (chunk, enc, callback) {
-		process.stdout.write('[' + title + '] ' + chunk.toString());
-		stream.push(chunk);
-		process.nextTick(callback);
-		return;
-	}
-	return stream;
+	return command_stream;
 }
