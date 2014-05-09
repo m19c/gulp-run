@@ -13,7 +13,7 @@ describe('gulp-run', function () {
 
 	it('should work with buffers', function (done) {
 
-		gulp.src(sample_filename, {buffer:true})  // Each line of the file is the line number.
+		gulp.src(sample_filename, {buffer:true})    // Each line of the file is the line number.
 			.pipe(run('awk "NR % 2 == 0"'))         // Get the even lines with awk.
 			.pipe(compare('2\n4\n6\n8\n10\n12\n'))  // Compare the output.
 			.pipe(call(done))                       // Profit.
@@ -23,7 +23,7 @@ describe('gulp-run', function () {
 
 	it('should work with streams', function (done) {
 
-		gulp.src(sample_filename, {buffer:false}) // Each line of the file is the line number.
+		gulp.src(sample_filename, {buffer:false})   // Each line of the file is the line number.
 			.pipe(run('awk "NR % 2 == 0"'))         // Get the even lines with awk.
 			.pipe(compare('2\n4\n6\n8\n10\n12\n'))  // Compare the output.
 			.pipe(call(done))                       // Profit.
@@ -36,6 +36,16 @@ describe('gulp-run', function () {
 		run('echo Hello World').exec()      // Start a command with `.exec()`.
 			.pipe(compare('Hello World\n')) // You don't even have to pipe from it
 			.pipe(call(done))               // i.e. when you want to just run the command, use exec.
+
+	});
+
+
+	it('should support file interpolation', function (done) {
+
+		gulp.src(sample_filename)
+			.pipe(run('echo <%= file.path %>'))    // echo the name of the file.
+			.pipe(compare(sample_filename + '\n')) // echo adds a newline to the output.
+			.pipe(call(done))
 
 	});
 });

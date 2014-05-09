@@ -7,6 +7,7 @@
 var child_process = require('child_process');
 var Stream = require('stream');
 
+var template = require('lodash.template');
 var Vinyl = require('vinyl');
 
 var parser = require('./lib/command-parser');
@@ -23,7 +24,10 @@ var parser = require('./lib/command-parser');
 /// access to all the binaries provided by your module's dependencies.
 ///
 /// ### Arguments
-/// 1. `command` *(String)*: The command to run.
+/// 1. `command` *(String)*: The command to run. It can be a [template] interpolating the vinyl file
+///     as the variable `file`.
+///
+/// [template]: http://lodash.com/docs#template
 ///
 /// ### Returns
 /// *(Stream.Transform in Object Mode)*: The through stream you so desire.
@@ -39,14 +43,6 @@ var parser = require('./lib/command-parser');
 
 var run = module.exports = function (command) {
 
-	// Parse the command.
-	var ast = parser.parse(command);
-	var cmd = ast.elements[0].textValue;
-	var args = [];
-	ast.elements[2].elements.forEach(function (arg_node) {
-		args.push(arg_node.arg.textValue);
-	});
-
 	// The environment for the child process.
 	var env = process.env;
 	env.PATH = './node_modules/.bin:' + env.PATH;
@@ -61,6 +57,15 @@ var run = module.exports = function (command) {
 			process.nextTick(done);
 			return;
 		}
+
+		// Parse the command
+		command = template(command)({file:file});
+		var ast = parser.parse(command);
+		var cmd = ast.elements[0].textValue;
+		var args = [];
+		ast.elements[2].elements.forEach(function (arg_node) {
+			args.push(arg_node.arg.textValue);
+		});
 
 		// Spawn the command
 		var child = child_process.spawn(cmd, args, {env:env});
@@ -126,10 +131,17 @@ var run = module.exports = function (command) {
 	/// ```
 
 	command_stream.exec = function (print) {
+		// Parse the command
+		command = template(command)({file:null});
+		var ast = parser.parse(command);
+		var cmd = ast.elements[0].textValue;
+		var args = [];
+		ast.elements[2].elements.forEach(function (arg_node) {
+			args.push(arg_node.arg.textValue);
+		});
+
 		// Spawn the command
 		var child = child_process.spawn(cmd, args, {env:env});
-		child.stdin.on('error', command_stream.emit.bind(command_stream, 'error'));
-		child.stdout.on('error', command_stream.emit.bind(command_stream, 'error'));
 		child.stdin.end();
 
 		// A stream to tee input to stdout
@@ -154,6 +166,8 @@ var run = module.exports = function (command) {
 			process.nextTick(callback);
 		};
 		stream.end(file);
+		child.stdin.on('error', stream.emit.bind(stream, 'error'));
+		child.stdout.on('error', stream.emit.bind(stream, 'error'));
 		return stream;
 	}
 

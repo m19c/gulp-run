@@ -31,6 +31,7 @@
 		"mocha": "^1.18.2"
 	},
 	"dependencies": {
+		"lodash.template": "^2.4.1",
 		"vinyl": "^0.2.3"
 	}
 }

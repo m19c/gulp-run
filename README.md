@@ -21,7 +21,7 @@ Gets a through stream for a shell command to which you can pipe vinyl files. For
 Additionally, `./node_modules/.bin` is prepended to the PATH for the child process, so you have access to all the binaries provided by your module's dependencies.
 
 #### Arguments
-1. `command` *(String)*: The command to run.
+1. `command` *(String)*: The command to run. It can be a [template] interpolating the vinyl file as the variable `file`.
 
 #### Returns
 *(Stream.Transform in Object Mode)*: The through stream you so desire.
@@ -56,12 +56,6 @@ gulp.task('hello-world', function () {
 ```
 
 
-TODO
---------------------------------------------------
-
-[ ] Command templates like [gulp-shell].
-
-
 The ISC License
 --------------------------------------------------
 
@@ -76,3 +70,4 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 [gulp-rename]: https://github.com/hparra/gulp-rename
 [gulp-shell]: https://github.com/sun-zheng-an/gulp-shell
 [gulp-spawn]: https://github.com/hparra/gulp-spawn
+[template]: http://lodash.com/docs#template
