@@ -47,6 +47,9 @@ var run = module.exports = function (command) {
 	var env = process.env;
 	env.PATH = './node_modules/.bin:' + env.PATH;
 
+	// Compile the command template
+	command = template(command);
+
 	// The object we return.
 	var command_stream = new Stream.Transform({objectMode: true});
 	command_stream._transform = function (file, enc, done) {
@@ -59,8 +62,7 @@ var run = module.exports = function (command) {
 		}
 
 		// Parse the command
-		command = template(command)({file:file});
-		var ast = parser.parse(command);
+		var ast = parser.parse( command({file:file}) );
 		var cmd = ast.elements[0].textValue;
 		var args = [];
 		ast.elements[2].elements.forEach(function (arg_node) {
