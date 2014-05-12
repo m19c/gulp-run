@@ -36,13 +36,14 @@ gulp.task('even-lines', function () {
 ```
 
 
-### `cmd.exec([print])`
+### `cmd.exec([print], [callback])`
 
 Executes the command immediately, returning the output as a stream of vinyl. Use this method to start a pipeline in gulp. The name of the file pushed down the pipe is the first word of the command. I recommend [gulp-rename] for renaming.
 
 
 #### Arguments
 1. `[print]` *(Boolean)*: If true, tee the command's output to `process.stdout` with each line prepended by the string **"[*title*] "** where *title* is the command's name.
+2. `[callback]` *(Function)*: Execution is asynchronous. The callback is called once the command's stdout has cloesd.
 
 #### Returns
 *(Stream.Readable in Object Mode)*: A stream containing exactly one vinyl file. The file's contents is the stdout stream of the command.

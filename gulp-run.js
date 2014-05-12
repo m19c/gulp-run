@@ -109,7 +109,7 @@ var run = module.exports = function (command) {
 	}
 
 
-	/// `cmd.exec([print])`
+	/// `cmd.exec([print], [callback])`
 	/// --------------------------------------------------
 	/// Executes the command immediately, returning the output as a stream of vinyl. Use this
 	/// method to start a pipeline in gulp. The name of the file pushed down the pipe is the first
@@ -119,6 +119,8 @@ var run = module.exports = function (command) {
 	/// #### Arguments
 	/// 1. `[print]` *(Boolean)*: If true, tee the command's output to `process.stdout` with each
 	///     line prepended by the string **"[*title*] "** where *title* is the command's name.
+	/// 2. `[callback]` *(Function)*: Execution is asynchronous. The callback is called once the
+	///     command's stdout has cloesd.
 	///
 	/// #### Returns
 	/// *(Stream.Readable in Object Mode)*: A stream containing exactly one vinyl file. The file's
@@ -132,7 +134,12 @@ var run = module.exports = function (command) {
 	/// })
 	/// ```
 
-	command_stream.exec = function (print) {
+	command_stream.exec = function (print, callback) {
+		// Parse arguments
+		if (typeof arguments[0] === 'function') {
+			callback = arguments[0];
+		}
+
 		// Parse the command
 		command = command({file:null});
 		var ast = parser.parse(command);
@@ -146,12 +153,17 @@ var run = module.exports = function (command) {
 		var child = child_process.spawn(cmd, args, {env:env});
 		child.stdin.end();
 
+		// Setup callback
+		if (typeof callback === 'function') {
+			child.stdout.on('end', callback);
+		}
+
 		// A stream to tee input to stdout
 		var tee = new Stream.Transform();
-		tee._transform = function (chunk, enc, callback) {
+		tee._transform = function (chunk, enc, done) {
 			process.stdout.write('[' + cmd + '] ' + chunk.toString());
 			tee.push(chunk);
-			process.nextTick(callback);
+			process.nextTick(done);
 			return;
 		}
 
@@ -163,9 +175,9 @@ var run = module.exports = function (command) {
 
 		// The vinyl stream
 		var stream = new Stream.Transform({objectMode:true});
-		stream._transform = function (file, enc, callback) {
+		stream._transform = function (file, enc, done) {
 			stream.push(file);
-			process.nextTick(callback);
+			process.nextTick(done);
 		};
 		stream.end(file);
 		child.stdin.on('error', stream.emit.bind(stream, 'error'));

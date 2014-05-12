@@ -31,21 +31,38 @@ describe('gulp-run', function () {
 	});
 
 
-	it('should start pipelines', function (done) {
-
-		run('echo Hello World').exec()      // Start a command with `.exec()`.
-			.pipe(compare('Hello World\n')) // You don't even have to pipe from it
-			.pipe(call(done))               // i.e. when you want to just run the command, use exec.
-
-	});
-
-
 	it('should support file interpolation', function (done) {
 
 		gulp.src(sample_filename)
 			.pipe(run('echo <%= file.path %>'))    // echo the name of the file.
 			.pipe(compare(sample_filename + '\n')) // echo adds a newline to the output.
 			.pipe(call(done))
+
+	});
+
+
+	describe('immediate execution (`.exec`)', function () {
+
+		it('is asynchronous', function (done) {
+
+			var start_time = process.hrtime()[0]; // Current time in seconds
+
+			// Sleep for 1s, then callback
+			run('sleep 1').exec(function () {
+				var delta = process.hrtime()[0] - start_time;
+				expect(delta).to.equal(1);
+				done();
+			});
+
+		});
+
+		it('should pipe its output', function (done) {
+
+			run('echo Hello World').exec()      // Start a command with `.exec()`.
+				.pipe(compare('Hello World\n')) // You don't even have to pipe from it
+				.pipe(call(done))               // i.e. use exec to just run the command anywhere.
+
+		});
 
 	});
 });
