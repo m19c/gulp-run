@@ -134,7 +134,7 @@ var run = module.exports = function (command) {
 
 	command_stream.exec = function (print) {
 		// Parse the command
-		command = template(command)({file:null});
+		command = command({file:null});
 		var ast = parser.parse(command);
 		var cmd = ast.elements[0].textValue;
 		var args = [];
