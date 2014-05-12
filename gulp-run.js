@@ -10,8 +10,6 @@ var Stream = require('stream');
 var template = require('lodash.template');
 var Vinyl = require('vinyl');
 
-var parser = require('./lib/command-parser');
-
 
 /// `var cmd = run(command)`
 /// --------------------------------------------------
@@ -61,16 +59,8 @@ var run = module.exports = function (command) {
 			return;
 		}
 
-		// Parse the command
-		var ast = parser.parse( command({file:file}) );
-		var cmd = ast.elements[0].textValue;
-		var args = [];
-		ast.elements[2].elements.forEach(function (arg_node) {
-			args.push(arg_node.arg.textValue);
-		});
-
 		// Spawn the command
-		var child = child_process.spawn(cmd, args, {env:env});
+		var child = child_process.spawn('sh', ['-c', command({file:file})], {env:env});
 		child.stdin.on('error', command_stream.emit.bind(command_stream, 'error'));
 		child.stdout.on('error', command_stream.emit.bind(command_stream, 'error'));
 		file.pipe(child.stdin);
@@ -140,17 +130,10 @@ var run = module.exports = function (command) {
 			callback = arguments[0];
 		}
 
-		// Parse the command
-		command = command({file:null});
-		var ast = parser.parse(command);
-		var cmd = ast.elements[0].textValue;
-		var args = [];
-		ast.elements[2].elements.forEach(function (arg_node) {
-			args.push(arg_node.arg.textValue);
-		});
-
 		// Spawn the command
-		var child = child_process.spawn(cmd, args, {env:env});
+		var cmd = command({file:file});
+		var title = cmd.split(/\s+/)[0];
+		var child = child_process.spawn('sh', ['-c', command({file:file})], {env:env});
 		child.stdin.end();
 
 		// Setup callback
@@ -161,7 +144,7 @@ var run = module.exports = function (command) {
 		// A stream to tee input to stdout
 		var tee = new Stream.Transform();
 		tee._transform = function (chunk, enc, done) {
-			process.stdout.write('[' + cmd + '] ' + chunk.toString());
+			process.stdout.write('[' + title + '] ' + chunk.toString());
 			tee.push(chunk);
 			process.nextTick(done);
 			return;
@@ -170,7 +153,7 @@ var run = module.exports = function (command) {
 		// The file to be pushed down stream
 		var file = new Vinyl({
 			contents: (print) ? child.stdout.pipe(tee) : child.stdout,
-			path: cmd
+			path: title
 		});
 
 		// The vinyl stream

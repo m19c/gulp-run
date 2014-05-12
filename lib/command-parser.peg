@@ -1,7 +1,0 @@
-grammar command_parser
-
-	root <- [^\s]+ [\s]* argument*
-
-	argument <- ['] arg:((!['] .)+) ['] [\s]*
-	          / ["] arg:((!["] .)+) ["] [\s]*
-	          /     arg:([^\s]+) [\s]*
