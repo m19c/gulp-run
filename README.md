@@ -36,14 +36,21 @@ gulp.task('even-lines', function () {
 ```
 
 
-### `cmd.exec([print], [callback])`
+### `cmd.exec([options], [callback])`
 
-Executes the command immediately, returning the output as a stream of vinyl. Use this method to start a pipeline in gulp. The name of the file pushed down the pipe is the first word of the command. I recommend [gulp-rename] for renaming.
-
+Executes the command immediately, returning the output as a stream of vinyl. Use this
+method to start a pipeline in gulp. The name of the file pushed down the pipe is the first
+word of the command. I recommend [gulp-rename] for renaming.
 
 #### Arguments
-1. `[print]` *(Boolean)*: If true, tee the command's output to `process.stdout` with each line prepended by the string **"[*title*] "** where *title* is the command's name.
-2. `[callback]` *(Function)*: Execution is asynchronous. The callback is called once the command's stdout has cloesd.
+1. `[options]` *(Object)*: If `options` is `true`, it is treated as `{print: true}`.
+    - `print` *(Boolean)*: If true, tee the command's output to `process.stdout` with each
+        line prepended by the string **"[*title*] "** where *title* is the command's name.
+        Defaults to `false`.
+    - `color` *(String)*: The color in which the title is printed. Defaults to `'cyan'` to
+        distinguish the output of `gulp-run` from `gulp` proper.
+2. `[callback]` *(Function)*: Execution is asynchronous. The callback is called once the
+    command's stdout has closed.
 
 #### Returns
 *(Stream.Readable in Object Mode)*: A stream containing exactly one vinyl file. The file's contents is the stdout stream of the command.

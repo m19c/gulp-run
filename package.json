@@ -1,37 +1,38 @@
 {
-	"name": "gulp-run",
-	"version": "1.2.0",
-	"description": "Pipe to shell commands in gulp",
-	"main": "gulp-run.js",
-	"scripts": {
-		"test": "./node_modules/.bin/mocha spec"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/cbarrick/gulp-run.git"
-	},
-	"keywords": [
-		"gulpplugin",
-		"gulp",
-		"run",
-		"shell",
-		"command",
-		"sh"
-	],
-	"author": "Chris Barrick <cbarrick1@gmail.com>",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/cbarrick/gulp-run/issues"
-	},
-	"homepage": "https://github.com/cbarrick/gulp-run",
-	"devDependencies": {
-		"canopy": "^0.2.0",
-		"chai": "^1.9.1",
-		"gulp": "^3.6.2",
-		"mocha": "^1.18.2"
-	},
-	"dependencies": {
-		"lodash.template": "^2.4.1",
-		"vinyl": "^0.2.3"
-	}
+  "name": "gulp-run",
+  "version": "1.2.0",
+  "description": "Pipe to shell commands in gulp",
+  "main": "gulp-run.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cbarrick/gulp-run.git"
+  },
+  "keywords": [
+    "gulpplugin",
+    "gulp",
+    "run",
+    "shell",
+    "command",
+    "sh"
+  ],
+  "author": "Chris Barrick <cbarrick1@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cbarrick/gulp-run/issues"
+  },
+  "homepage": "https://github.com/cbarrick/gulp-run",
+  "devDependencies": {
+    "canopy": "^0.2.0",
+    "chai": "^1.9.1",
+    "gulp": "^3.6.2",
+    "mocha": "^1.18.2"
+  },
+  "dependencies": {
+    "ansi-color": "^0.2.1",
+    "lodash": "^2.4.1",
+    "vinyl": "^0.2.3"
+  }
 }
