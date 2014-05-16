@@ -4,7 +4,7 @@
   "description": "Pipe to shell commands in gulp",
   "main": "gulp-run.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha spec"
+    "test": "./node_modules/.bin/mocha spec -R spec"
   },
   "repository": {
     "type": "git",

@@ -11,37 +11,51 @@ describe('gulp-run', function () {
 
 	var sample_filename = Path.join(__dirname, 'sample.input.txt');
 
-	it('should work with buffers', function (done) {
 
-		gulp.src(sample_filename, {buffer:true})    // Each line of the file is the line number.
-			.pipe(run('awk "NR % 2 == 0"'))         // Get the even lines with awk.
-			.pipe(compare('2\n4\n6\n8\n10\n12\n'))  // Compare the output.
-			.pipe(call(done))                       // Profit.
+	describe('in a pipeline', function () {
+
+		it('works with buffers', function (done) {
+
+			gulp.src(sample_filename, {buffer:true})    // Each line is the line number.
+				.pipe(run('awk "NR % 2 == 0"'))         // Get the even lines with awk.
+				.pipe(compare('2\n4\n6\n8\n10\n12\n'))  // Compare the output.
+				.pipe(call(done))                       // Profit.
+
+		});
+
+
+		it('works with streams', function (done) {
+
+			gulp.src(sample_filename, {buffer:false})   // Each line is the line number.
+				.pipe(run('awk "NR % 2 == 0"'))         // Get the even lines with awk.
+				.pipe(compare('2\n4\n6\n8\n10\n12\n'))  // Compare the output.
+				.pipe(call(done))                       // Profit.
+
+		});
+
+
+		it('supports command templates', function (done) {
+
+			gulp.src(sample_filename)
+				.pipe(run('echo <%= file.path %>'))    // echo the name of the file.
+				.pipe(compare(sample_filename + '\n')) // echo adds a newline to the output.
+				.pipe(call(done))
+
+		});
+
+
+		it('"error" event on a failed command (also writes to stderr)', function (done) {
+
+				gulp.src(sample_filename)
+					.pipe(run('return 1', {silent: true})) // Non-zero exit code
+					.on('error', done)                     // triggers an 'error' event.
+
+		});
 
 	});
 
 
-	it('should work with streams', function (done) {
-
-		gulp.src(sample_filename, {buffer:false})   // Each line of the file is the line number.
-			.pipe(run('awk "NR % 2 == 0"'))         // Get the even lines with awk.
-			.pipe(compare('2\n4\n6\n8\n10\n12\n'))  // Compare the output.
-			.pipe(call(done))                       // Profit.
-
-	});
-
-
-	it('should support file interpolation', function (done) {
-
-		gulp.src(sample_filename)
-			.pipe(run('echo <%= file.path %>'))    // echo the name of the file.
-			.pipe(compare(sample_filename + '\n')) // echo adds a newline to the output.
-			.pipe(call(done))
-
-	});
-
-
-	describe('immediate execution (`.exec`)', function () {
+	describe('direct execution (`.exec`)', function () {
 
 		it('is asynchronous', function (done) {
 
@@ -56,11 +70,20 @@ describe('gulp-run', function () {
 
 		});
 
-		it('should pipe its output', function (done) {
 
-			run('echo Hello World').exec()      // Start a command with `.exec()`.
-				.pipe(compare('Hello World\n')) // You don't even have to pipe from it
-				.pipe(call(done))               // i.e. use exec to just run the command anywhere.
+		it('pipes its output as a Vinyl file', function (done) {
+
+			run('echo Hello World').exec()       // Start a command with `.exec()`.
+				.pipe(compare('Hello World\n')) // stdout piped as a Vinyl file.
+				.pipe(call(done))
+
+		});
+
+
+		it('"error" event on a failed command (writes to stderr)', function (done) {
+
+			run('return 1', {silent: true}).exec() // Non-zero exit code
+				.on('error', done)                // triggers an 'error' event.
 
 		});
 
@@ -72,7 +95,7 @@ describe('gulp-run', function () {
 /// Helpers
 /// --------------------------------------------------
 
-// Get a vinyl stream that calls a function whenever a file is piped in.
+// A stream that calls a function whenever a file is piped in.
 var call = function (callback1) {
 	var stream = new Stream.Transform({objectMode:true});
 	stream._transform = function (file, enc, callback2) {
@@ -84,7 +107,7 @@ var call = function (callback1) {
 }
 
 
-// Get a vinys stream that throws if the contents of the piped-in file doesn't match.
+// A stream that throws if the contents of the incoming file doesn't match the argument.
 var compare = function (match) {
 	var stream = new Stream.Transform({objectMode:true});
 	stream._transform = function (file, end, callback) {
@@ -124,7 +147,7 @@ var compare = function (match) {
 }
 
 
-// Get a vinyl stream that tees the contents of the piped-in file to the given text stream.
+// A vinyl stream that tees the contents of the incoming file to the given text stream.
 // Useful for debugging, like `stream.pipe(tee(process.stdout))` to print the stream.
 var tee = function (out) {
 	var stream = new Stream.Transform({objectMode:true});
