@@ -24,6 +24,12 @@ var Vinyl = require('vinyl');
 /// ### Arguments
 /// 1. `command` *(String)*: The command to run. It can be a [template] interpolating the vinyl file
 ///     as the variable `file`.
+/// 2. `[options]` *(Object)*: If `options` is `true`, it is treated as `{print: true}`.
+///     - `print` *(Boolean)*: If true, tee the command's output to `process.stdout` with each line
+///         prepended by the string **"[*title*] "** where *title* is the command's name.
+///         Defaults to `false`.
+///     - `color` *(String)*: The color in which the title is printed. Defaults to `'cyan'` to
+///         distinguish the output of `gulp-run` from `gulp` proper.
 ///
 /// [template]: http://lodash.com/docs#template
 ///
@@ -33,13 +39,20 @@ var Vinyl = require('vinyl');
 /// ### Example
 /// ```javascript
 /// gulp.task('even-lines', function () {
-/// 	gulp.src('path/to/input/*')            // Get input files.
-/// 		.pipe(run('awk "NR % 2 == 0"'))    // Use awk to extract the even lines.
-/// 		.pipe(gulp.dest('path/to/output')) // Profit.
+///     gulp.src('path/to/input/*')            // Get input files.
+///         .pipe(run('awk "NR % 2 == 0"'))    // Use awk to extract the even lines.
+///         .pipe(gulp.dest('path/to/output')) // Profit.
 /// })
 /// ```
 
-var run = module.exports = function (command) {
+var run = module.exports = function (command, opts) {
+
+	// Options
+	opts = _.defaults(opts||{}, {
+		print: false,
+		color: 'cyan',
+		silent: false,
+	});
 
 	// The environment for the child process.
 	var env = process.env;
@@ -94,7 +107,7 @@ var run = module.exports = function (command) {
 			if (code !== 0) {
 				var title = cmd.split(/\s+/)[0];
 				var err = '[' + colorize(title, 'red') + '] Exited with status: ' + code + '\n';
-				console.error(err);
+				if (!opts.silent) console.error(err);
 				command_stream.emit('error');
 			}
 			done();
@@ -102,20 +115,14 @@ var run = module.exports = function (command) {
 	}
 
 
-	/// `cmd.exec([options], [callback])`
+	/// `cmd.exec([callback])`
 	/// --------------------------------------------------
 	/// Executes the command immediately, returning the output as a stream of vinyl. Use this
 	/// method to start a pipeline in gulp. The name of the file pushed down the pipe is the first
 	/// word of the command. I recommend [gulp-rename] for renaming.
 	///
 	/// ### Arguments
-	/// 1. `[options]` *(Object)*: If `options` is `true`, it is treated as `{print: true}`.
-	///     - `print` *(Boolean)*: If true, tee the command's output to `process.stdout` with each
-	///         line prepended by the string **"[*title*] "** where *title* is the command's name.
-	///         Defaults to `false`.
-	///     - `color` *(String)*: The color in which the title is printed. Defaults to `'cyan'` to
-	///         distinguish the output of `gulp-run` from `gulp` proper.
-	/// 2. `[callback]` *(Function)*: Execution is asynchronous. The callback is called once the
+	/// 1. `[callback]` *(Function)*: Execution is asynchronous. The callback is called once the
 	///     command's stdout has closed.
 	///
 	/// ### Returns
@@ -125,26 +132,12 @@ var run = module.exports = function (command) {
 	/// ### Example
 	/// ```javascript
 	/// gulp.task('hello-world', function () {
-	/// 	run('echo Hello World').exec(true) // prints "[echo] Hello World\n"
-	/// 		.pipe(gulp.dest('output/dir')) // Writes "Hello World\n" to output/dir/echo
+	///     run('echo Hello World').exec(true) // prints "[echo] Hello World\n"
+	///         .pipe(gulp.dest('output/dir')) // Writes "Hello World\n" to output/dir/echo
 	/// })
 	/// ```
 
-	command_stream.exec = function (opts, callback) {
-		// Parse arguments
-		if (typeof arguments[0] === 'function') {
-			callback = arguments[0];
-			opts = undefined;
-		}
-		if (opts === true) {
-			opts = {
-				print: true
-			}
-		}
-		opts = _.defaults(opts||{}, {
-			print: false,
-			color: 'cyan'
-		});
+	command_stream.exec = function (callback) {
 
 		// Spawn the command
 		var cmd = command({file:file});
@@ -164,7 +157,7 @@ var run = module.exports = function (command) {
 			lines.forEach(function (line, index) {
 				// Skip the last line if it's blank
 				if (index === lines.length - 1 && line.length <= 1) return;
-				process.stdout.write('[' + colorize(title, opts.color) + '] ' + line + '\n');
+				if (!opts.silent) console.log('[' + colorize(title, opts.color) + '] ' + line);
 			});
 			tee.push(chunk);
 			process.nextTick(done);
@@ -189,8 +182,8 @@ var run = module.exports = function (command) {
 		child.on('close', function (code) {
 			if (code !== 0) {
 				var title = cmd.split(/\s+/)[0];
-				var err = '[' + colorize(title, 'red') + '] Exited with status: ' + code + '\n';
-				console.error(err);
+				var err = '[' + colorize(title, 'red') + '] Exited with status: ' + code;
+				if (!opts.silent) console.error(err)
 				stream.emit('error');
 			}
 		});

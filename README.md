@@ -14,7 +14,7 @@ Usage
 API
 --------------------------------------------------
 
-### `var cmd = run(command)`
+### `var cmd = run(command, [options])`
 
 Gets a through stream for a shell command to which you can pipe vinyl files. For each file piped, a new process is spawned, the file is read into the processes's stdin, and a file containing the processes's stdout is pushed.
 
@@ -22,6 +22,12 @@ Additionally, `./node_modules/.bin` is prepended to the PATH for the child proce
 
 #### Arguments
 1. `command` *(String)*: The command to run. It can be a [template] interpolating the vinyl file as the variable `file`.
+2. `[options]` *(Object)*: If `options` is `true`, it is treated as `{print: true}`.
+    - `print` *(Boolean)*: If true, tee the command's output to `process.stdout` with each
+        line prepended by the string **"[*title*] "** where *title* is the command's name.
+        Defaults to `false`.
+    - `color` *(String)*: The color in which the title is printed. Defaults to `'cyan'` to
+        distinguish the output of `gulp-run` from `gulp` proper.
 
 #### Returns
 *(Stream.Transform in Object Mode)*: The through stream you so desire.
@@ -43,13 +49,7 @@ method to start a pipeline in gulp. The name of the file pushed down the pipe is
 word of the command. I recommend [gulp-rename] for renaming.
 
 #### Arguments
-1. `[options]` *(Object)*: If `options` is `true`, it is treated as `{print: true}`.
-    - `print` *(Boolean)*: If true, tee the command's output to `process.stdout` with each
-        line prepended by the string **"[*title*] "** where *title* is the command's name.
-        Defaults to `false`.
-    - `color` *(String)*: The color in which the title is printed. Defaults to `'cyan'` to
-        distinguish the output of `gulp-run` from `gulp` proper.
-2. `[callback]` *(Function)*: Execution is asynchronous. The callback is called once the
+1. `[callback]` *(Function)*: Execution is asynchronous. The callback is called once the
     command's stdout has closed.
 
 #### Returns
