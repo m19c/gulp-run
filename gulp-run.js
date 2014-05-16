@@ -60,7 +60,8 @@ var run = module.exports = function (command) {
 		}
 
 		// Spawn the command
-		var child = child_process.spawn('sh', ['-c', command({file:file})], {env:env});
+		var cmd = command({file:file});
+		var child = child_process.spawn('sh', ['-c', cmd], {env:env});
 		child.stdin.on('error', command_stream.emit.bind(command_stream, 'error'));
 		child.stdout.on('error', command_stream.emit.bind(command_stream, 'error'));
 		file.pipe(child.stdin);
@@ -69,8 +70,6 @@ var run = module.exports = function (command) {
 		if (file.isStream()) {
 			file.contents = child.stdout;
 			command_stream.push(file);
-			process.nextTick(done);
-			return;
 		}
 
 		// Buffers - buffer the entire output before continuing the pipeline
@@ -88,14 +87,18 @@ var run = module.exports = function (command) {
 			});
 			stdout.on('end', function () {
 				command_stream.push(file);
-				process.nextTick(done);
 			});
-			return;
 		}
 
-		// Else - can't handle the file
-		command_stream.emit('error');
-		throw new Error("Received a file that is neither a stream nor a buffer");
+		child.on('close', function (code) {
+			if (code !== 0) {
+				var title = cmd.split(/\s+/)[0];
+				var err = '[' + colorize(title, 'red') + '] Exited with status: ' + code + '\n';
+				console.error(err);
+				command_stream.emit('error');
+			}
+			done();
+		});
 	}
 
 
@@ -181,8 +184,17 @@ var run = module.exports = function (command) {
 			process.nextTick(done);
 		};
 		stream.end(file);
-		child.stdin.on('error', stream.emit.bind(stream, 'error'));
-		child.stdout.on('error', stream.emit.bind(stream, 'error'));
+
+		// Error handling
+		child.on('close', function (code) {
+			if (code !== 0) {
+				var title = cmd.split(/\s+/)[0];
+				var err = '[' + colorize(title, 'red') + '] Exited with status: ' + code + '\n';
+				console.error(err);
+				stream.emit('error');
+			}
+		});
+
 		return stream;
 	}
 
