@@ -105,9 +105,9 @@ var run = module.exports = function (command, opts) {
 		child.on('close', function (code) {
 			if (code !== 0) {
 				var title = cmd.split(/\s+/)[0];
-				var err = '[' + colorize(title, 'red') + '] Exited with status: ' + code + '\n';
-				if (!opts.silent) console.error(err);
-				command_stream.emit('error');
+				var err = 'Exited with status: ' + code + '\n';
+				if (!opts.silent) console.error('[' + colorize(title, 'red') + '] ' + err);
+				command_stream.emit('error', new Error(err));
 			}
 			done();
 		});
@@ -184,9 +184,9 @@ var run = module.exports = function (command, opts) {
 		child.on('close', function (code) {
 			if (code !== 0) {
 				var title = cmd.split(/\s+/)[0];
-				var err = '[' + colorize(title, 'red') + '] Exited with status: ' + code;
-				if (!opts.silent) console.error(err)
-				stream.emit('error');
+				var err = 'Exited with status: ' + code;
+				if (!opts.silent) console.error('[' + colorize(title, 'red') + '] ' + err)
+				stream.emit('error', new Error(err));
 			}
 		});
 
