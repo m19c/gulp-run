@@ -12,7 +12,7 @@ var colorize = require('ansi-color').set;
 var Vinyl = require('vinyl');
 
 
-/// `var cmd = run(command)`
+/// `var cmd = run(command, [options])`
 /// --------------------------------------------------
 /// Gets a through stream for a shell command to which you can pipe vinyl files. For each file
 /// piped, a new process is spawned, the file is read into the processes's stdin, and a file
@@ -24,10 +24,10 @@ var Vinyl = require('vinyl');
 /// ### Arguments
 /// 1. `command` *(String)*: The command to run. It can be a [template] interpolating the vinyl file
 ///     as the variable `file`.
-/// 2. `[options]` *(Object)*: If `options` is `true`, it is treated as `{print: true}`.
-///     - `print` *(Boolean)*: If true, tee the command's output to `process.stdout` with each line
-///         prepended by the string **"[*title*] "** where *title* is the command's name.
-///         Defaults to `false`.
+/// 2. `[options]` *(Object)*:
+///     - `silent` *(Boolean)*: If true, tee the command's output to `process.stdout` and
+///         `process.stderr` where appropriate with each line prepended by the string **"[*title*]
+///         "** where *title* is the command's name. Defaults to `false`.
 ///     - `color` *(String)*: The color in which the title is printed. Defaults to `'cyan'` to
 ///         distinguish the output of `gulp-run` from `gulp` proper.
 ///
@@ -49,9 +49,8 @@ var run = module.exports = function (command, opts) {
 
 	// Options
 	opts = _.defaults(opts||{}, {
-		print: false,
 		color: 'cyan',
-		silent: false,
+		silent: false
 	});
 
 	// The environment for the child process.
@@ -117,9 +116,12 @@ var run = module.exports = function (command, opts) {
 
 	/// `cmd.exec([callback])`
 	/// --------------------------------------------------
-	/// Executes the command immediately, returning the output as a stream of vinyl. Use this
-	/// method to start a pipeline in gulp. The name of the file pushed down the pipe is the first
-	/// word of the command. I recommend [gulp-rename] for renaming.
+	/// Executes the command immediately, returning the output as a vinyl stream. Unless the
+	/// `silent` option is true, the output is tee'd to `process.stdout` with each line prepended
+	/// by the string **"[*title*] "** where *title* is the command's name.
+	///
+	/// The name of the file pushed down the pipe is the first word of the command.
+	/// See [gulp-rename] if you need more flexibility.
 	///
 	/// ### Arguments
 	/// 1. `[callback]` *(Function)*: Execution is asynchronous. The callback is called once the
@@ -132,8 +134,8 @@ var run = module.exports = function (command, opts) {
 	/// ### Example
 	/// ```javascript
 	/// gulp.task('hello-world', function () {
-	///     run('echo Hello World').exec(true) // prints "[echo] Hello World\n"
-	///         .pipe(gulp.dest('output/dir')) // Writes "Hello World\n" to output/dir/echo
+	///     run('echo Hello World').exec() // prints "[echo] Hello World\n"
+	///         .pipe(gulp.dest('output')) // Writes "Hello World\n" to output/echo
 	/// })
 	/// ```
 
@@ -166,7 +168,7 @@ var run = module.exports = function (command, opts) {
 
 		// The file to be pushed down stream
 		var file = new Vinyl({
-			contents: (opts.print) ? child.stdout.pipe(tee) : child.stdout,
+			contents: (!opts.silent) ? child.stdout.pipe(tee) : child.stdout,
 			path: title
 		});
 

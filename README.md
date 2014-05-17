@@ -20,12 +20,13 @@ Gets a through stream for a shell command to which you can pipe vinyl files. For
 
 Additionally, `./node_modules/.bin` is prepended to the PATH for the child process, so you have access to all the binaries provided by your module's dependencies.
 
-#### Arguments
-1. `command` *(String)*: The command to run. It can be a [template] interpolating the vinyl file as the variable `file`.
-2. `[options]` *(Object)*: If `options` is `true`, it is treated as `{print: true}`.
-    - `print` *(Boolean)*: If true, tee the command's output to `process.stdout` with each
-        line prepended by the string **"[*title*] "** where *title* is the command's name.
-        Defaults to `false`.
+### Arguments
+1. `command` *(String)*: The command to run. It can be a [template] interpolating the vinyl file
+    as the variable `file`.
+2. `[options]` *(Object)*:
+    - `silent` *(Boolean)*: If true, tee the command's output to `process.stdout` and
+        `process.stderr` where appropriate with each line prepended by the string **"[*title*]
+        "** where *title* is the command's name. Defaults to `false`.
     - `color` *(String)*: The color in which the title is printed. Defaults to `'cyan'` to
         distinguish the output of `gulp-run` from `gulp` proper.
 
@@ -44,9 +45,9 @@ gulp.task('even-lines', function () {
 
 ### `cmd.exec([options], [callback])`
 
-Executes the command immediately, returning the output as a stream of vinyl. Use this
-method to start a pipeline in gulp. The name of the file pushed down the pipe is the first
-word of the command. I recommend [gulp-rename] for renaming.
+Executes the command immediately, returning the output as a vinyl stream. Unless the `silent` option is true, the output is tee'd to `process.stdout` with each line prepended by the string **"[*title*] "** where *title* is the command's name.
+
+The name of the file pushed down the pipe is the first word of the command. See [gulp-rename] if you need more flexibility.
 
 #### Arguments
 1. `[callback]` *(Function)*: Execution is asynchronous. The callback is called once the
@@ -58,8 +59,8 @@ word of the command. I recommend [gulp-rename] for renaming.
 #### Example
 ```javascript
 gulp.task('hello-world', function () {
-    run('echo Hello World').exec(true) // prints "[echo] Hello World\n"
-        .pipe(gulp.dest('output/dir')) // Writes "Hello World\n" to output/dir/echo
+    run('echo Hello World').exec() // prints "[echo] Hello World\n"
+        .pipe(gulp.dest('output')) // Writes "Hello World\n" to output/echo
 })
 ```
 

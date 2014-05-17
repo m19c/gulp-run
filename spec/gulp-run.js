@@ -12,7 +12,7 @@ describe('gulp-run', function () {
 	var sample_filename = Path.join(__dirname, 'sample.input.txt');
 
 
-	describe('in a pipeline', function () {
+	describe('in a vinyl pipeline', function () {
 
 		it('works with buffers', function (done) {
 
@@ -34,7 +34,7 @@ describe('gulp-run', function () {
 		});
 
 
-		it('supports command templates', function (done) {
+		it('supports command templates, i.e. "echo <%= file.path %>"', function (done) {
 
 			gulp.src(sample_filename)
 				.pipe(run('echo <%= file.path %>'))    // echo the name of the file.
@@ -44,7 +44,7 @@ describe('gulp-run', function () {
 		});
 
 
-		it('"error" event on a failed command (also writes to stderr)', function (done) {
+		it('emits an "error" event on a failed command', function (done) {
 
 				gulp.src(sample_filename)
 					.pipe(run('return 1', {silent: true})) // Non-zero exit code
@@ -57,13 +57,13 @@ describe('gulp-run', function () {
 
 	describe('direct execution (`.exec`)', function () {
 
-		it('is asynchronous', function (done) {
+		it('is asynchronous (this test sleeps for 1s)', function (done) {
 
 			var start_time = process.hrtime()[0]; // Current time in seconds
 
 			// Sleep for 1s, then callback
 			run('sleep 1').exec(function () {
-				var delta = process.hrtime()[0] - start_time;
+				var delta = process.hrtime()[0] - start_time; // Time in seconds
 				expect(delta).to.equal(1);
 				done();
 			});
@@ -71,19 +71,19 @@ describe('gulp-run', function () {
 		});
 
 
-		it('pipes its output as a Vinyl file', function (done) {
+		it('returns a vinyl stream wrapping stdout', function (done) {
 
-			run('echo Hello World').exec()       // Start a command with `.exec()`.
-				.pipe(compare('Hello World\n')) // stdout piped as a Vinyl file.
+			run('echo Hello World', {silent:true}).exec() // Start a command with `.exec()`.
+				.pipe(compare('Hello World\n'))          // stdout piped as a Vinyl file.
 				.pipe(call(done))
 
 		});
 
 
-		it('"error" event on a failed command (writes to stderr)', function (done) {
+		it('emits an "error" event on a failed command', function (done) {
 
-			run('return 1', {silent: true}).exec() // Non-zero exit code
-				.on('error', done)                // triggers an 'error' event.
+			run('return 1', {silent:true}).exec() // Non-zero exit code
+				.on('error', done)               // triggers an 'error' event.
 
 		});
 
