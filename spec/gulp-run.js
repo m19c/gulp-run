@@ -12,6 +12,15 @@ describe('gulp-run', function () {
 	var sample_filename = Path.join(__dirname, 'sample.input.txt');
 
 
+	it('includes `./node_modules/.bin` on the PATH', function (done) {
+
+		run('echo $PATH', {silent:true}).exec()
+			.pipe(compare(/(^|:)\.\/node_modules\/\.bin/))
+			.pipe(call(done))
+
+	});
+
+
 	describe('in a vinyl pipeline', function () {
 
 		it('works with buffers', function (done) {
@@ -34,7 +43,7 @@ describe('gulp-run', function () {
 		});
 
 
-		it('supports command templates, i.e. "echo <%= file.path %>"', function (done) {
+		it('supports command templates, i.e. `echo <%= file.path %>`', function (done) {
 
 			gulp.src(sample_filename)
 				.pipe(run('echo <%= file.path %>'))    // echo the name of the file.
@@ -44,7 +53,7 @@ describe('gulp-run', function () {
 		});
 
 
-		it('emits an "error" event on a failed command', function (done) {
+		it('emits an `error` event on a failed command', function (done) {
 
 				gulp.src(sample_filename)
 					.pipe(run('return 1', {silent: true})) // Non-zero exit code
@@ -80,7 +89,7 @@ describe('gulp-run', function () {
 		});
 
 
-		it('emits an "error" event on a failed command', function (done) {
+		it('emits an `error` event on a failed command', function (done) {
 
 			run('return 1', {silent:true}).exec() // Non-zero exit code
 				.on('error', done)               // triggers an 'error' event.
@@ -109,6 +118,9 @@ var call = function (callback1) {
 
 // A stream that throws if the contents of the incoming file doesn't match the argument.
 var compare = function (match) {
+	if (!(match instanceof RegExp)) {
+		match = new RegExp('^' + match.toString() + '$');
+	}
 	var stream = new Stream.Transform({objectMode:true});
 	stream._transform = function (file, end, callback) {
 		var contents;
@@ -128,7 +140,7 @@ var compare = function (match) {
 				}
 			});
 			file.contents.on('end', function () {
-				expect(contents).to.equal(match);
+				expect(contents).to.match(match);
 				new_file.contents.push(contents);
 				new_file.contents.end();
 				stream.push(new_file);
@@ -138,7 +150,7 @@ var compare = function (match) {
 		}
 
 		contents = (file.isBuffer()) ? file.contents.toString() : file.contents;
-		expect(contents).to.equal(match);
+		expect(contents).to.match(match);
 		this.push(file);
 		process.nextTick(callback);
 		return;
