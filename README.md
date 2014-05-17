@@ -43,7 +43,7 @@ gulp.task('even-lines', function () {
 ```
 
 
-### `cmd.exec([options], [callback])`
+### `cmd.exec([callback])`
 
 Executes the command immediately, returning the output as a vinyl stream. Unless the `silent` option is true, the output is tee'd to `process.stdout` with each line prepended by the string **"[*title*] "** where *title* is the command's name.
 
