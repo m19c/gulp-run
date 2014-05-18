@@ -47,7 +47,7 @@ describe('gulp-run', function () {
 
 			gulp.src(sample_filename)
 				.pipe(run('echo <%= file.path %>'))    // echo the name of the file.
-				.pipe(compare(sample_filename + '\n')) // echo adds a newline to the output.
+				.pipe(compare(sample_filename + '\n'))
 				.pipe(call(done))
 
 		});
@@ -57,7 +57,9 @@ describe('gulp-run', function () {
 
 				gulp.src(sample_filename)
 					.pipe(run('return 1', {silent: true})) // Non-zero exit code
-					.on('error', done)                     // triggers an 'error' event.
+					.on('error', function () {
+						done();
+					});
 
 		});
 
@@ -92,7 +94,9 @@ describe('gulp-run', function () {
 		it('emits an `error` event on a failed command', function (done) {
 
 			run('return 1', {silent:true}).exec() // Non-zero exit code
-				.on('error', done)               // triggers an 'error' event.
+				.on('error', function () {
+					done();
+				});
 
 		});
 
@@ -129,7 +133,7 @@ var compare = function (match) {
 			var new_file = file.clone();
 			new_file.contents = new Stream.Transform();
 			new_file.contents._transform = function (chunk, enc, callback) {
-				this.push(chunk);
+				new_file.contents.push(chunk);
 				return callback();
 			};
 			contents = '';
@@ -151,7 +155,7 @@ var compare = function (match) {
 
 		contents = (file.isBuffer()) ? file.contents.toString() : file.contents;
 		expect(contents).to.match(match);
-		this.push(file);
+		stream.push(file);
 		process.nextTick(callback);
 		return;
 	}
