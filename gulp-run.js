@@ -5,7 +5,7 @@
 'use strict';
 
 var child_process = require('child_process');
-var Stream = require('stream');
+var stream = require('stream');
 
 var _ = require('lodash');
 var colorize = require('ansi-color').set;
@@ -34,7 +34,7 @@ var Vinyl = require('vinyl');
 /// [template]: http://lodash.com/docs#template
 ///
 /// ### Returns
-/// *(Stream.Transform in Object Mode)*: The through stream you so desire.
+/// *(stream.Transform in Object Mode)*: The through stream you so desire.
 ///
 /// ### Example
 /// ```javascript
@@ -46,6 +46,7 @@ var Vinyl = require('vinyl');
 /// ```
 
 var run = module.exports = function (command, opts) {
+	var command_stream = new stream.Transform({objectMode: true}); // The stream of vinyl files.
 
 	// Options
 	opts = _.defaults(opts||{}, {
@@ -53,16 +54,78 @@ var run = module.exports = function (command, opts) {
 		silent: false
 	});
 
-	// The environment for the child process.
-	var env = process.env;
-	env.PATH = './node_modules/.bin:' + env.PATH;
-
 	// Compile the command template
-	command = _.template(command);
+	var command_template = _.template(command);
 
-	// The object we return.
-	var command_stream = new Stream.Transform({objectMode: true});
+
+	// `exec(command, [stdin], [callback])`
+	// --------------------------------------------------
+	// TODO: Document
+
+	var exec = function (command, stdin, callback) {
+		var child; // The child process.
+		var env; // The environmental variables for the child.
+		var out_stream; // The contents of the returned vinyl file.
+
+		// Parse arguments.
+		if (typeof arguments[1] === 'function') {
+			stdin = null;
+			callback = arguments[1];
+		}
+
+		// Message.
+		if (!opts.silent) console.log('[' + colorize('gulp-run', 'green') + '] ' + command);
+
+		// Setup env.
+		env = process.env;
+		env.PATH = './node_modules/.bin:' + env.PATH;
+
+		// Spawn the process.
+		child = child_process.spawn('sh', ['-c', command], {env:env});
+		child.on('close', function (code) {
+			var err;
+			if (code !== 0) {
+				err = 'Exited with status code ' + code;
+				if (!opts.silent) console.error('[' + colorize('gulp-run', 'red') + '] ' + err);
+			}
+			if (typeof callback === 'function') {
+				process.nextTick(callback.bind(undefined, err));
+			}
+		});
+
+		// Handle input.
+		if (stdin && typeof stdin.pipe === 'function') {
+			stdin.pipe(child.stdin);
+		} else if (stdin !== undefined && stdin !== null) {
+			child.stdin.end(stdin.toString());
+		} else {
+			child.stdin.end();
+		}
+
+		// Handle output.
+		out_stream = new stream.Transform();
+		out_stream._transform = function (chunk, enc, callback) {
+			out_stream.push(chunk);
+			if (!opts.silent) process.stdout.write(chunk.toString());
+			process.nextTick(callback);
+		};
+		child.stdout.pipe(out_stream);
+
+		// Return a vinyl file wrapping the command's stdout.
+		return new Vinyl({
+			path: command.split(/\s+/)[0], // first word of the command
+			contents: out_stream
+		});
+
+	}
+
+
+	// This method is called automatically for each file piped into the stream. It spawns a
+	// command for each file, using the file's contents as stdin, and pushes downstream a new file
+	// wrapping stdout.
+
 	command_stream._transform = function (file, enc, done) {
+		var output;
 
 		// Null files pass through
 		if (file.isNull()) {
@@ -71,56 +134,22 @@ var run = module.exports = function (command, opts) {
 			return;
 		}
 
-		// Spawn the command
-		var cmd = command({file:file});
-		var child = child_process.spawn('sh', ['-c', cmd], {env:env});
-		child.stdin.on('error', command_stream.emit.bind(command_stream, 'error'));
-		child.stdout.on('error', command_stream.emit.bind(command_stream, 'error'));
-		file.pipe(child.stdin);
-
-		// Streams - pass the child's stdout through
-		if (file.isStream()) {
-			file.contents = child.stdout;
-			command_stream.push(file);
-		}
-
-		// Buffers - buffer the entire output before continuing the pipeline
-		if (file.isBuffer()) {
-			file.contents = new Buffer(0);
-			var stdout = child.stdout;
-			stdout.on('readable', function () {
-				var chunk = stdout.read()
-				if (chunk !== null) {
-					file.contents = Buffer.concat(
-						[file.contents, chunk],
-						file.contents.length + chunk.length
-					);
-				}
-			});
-			stdout.on('end', function () {
-				command_stream.push(file);
-			});
-		}
-
-		child.on('close', function (code) {
-			if (code !== 0) {
-				var title = cmd.split(/\s+/)[0];
-				var err = 'Exited with status: ' + code + '\n';
-				if (!opts.silent) console.error('[' + colorize(title, 'red') + '] ' + err);
-				command_stream.emit('error', new Error(err));
-			}
-			done();
+		// Spawn the command.
+		output = exec(command_template({file:file}), file, function (err) {
+			if (err) command_stream.emit('error', err);
 		});
+
+		// Push downstream a vinyl file wrapping the command's stdout.
+		command_stream.push(output);
 	}
 
 
 	/// `cmd.exec([callback])`
 	/// --------------------------------------------------
-	/// Executes the command immediately, returning the output as a vinyl stream. Unless the
-	/// `silent` option is true, the output is tee'd to `process.stdout` with each line prepended
-	/// by the string **"[*title*] "** where *title* is the command's name.
+	/// Executes the command immediately, returning a stream of vinyl. A single file containing
+	/// the command's stdout is pushed down the stream.
 	///
-	/// The name of the file pushed down the pipe is the first word of the command.
+	/// The name of the file pushed down the stream is the first word of the command.
 	/// See [gulp-rename] if you need more flexibility.
 	///
 	/// ### Arguments
@@ -128,7 +157,7 @@ var run = module.exports = function (command, opts) {
 	///     command's stdout has closed.
 	///
 	/// ### Returns
-	/// *(Stream.Readable in Object Mode)*: A stream containing exactly one vinyl file. The file's
+	/// *(stream.Readable in Object Mode)*: A stream containing exactly one vinyl file. The file's
 	/// contents is the stdout stream of the command.
 	///
 	/// ### Example
@@ -140,57 +169,22 @@ var run = module.exports = function (command, opts) {
 	/// ```
 
 	command_stream.exec = function (callback) {
+		var output; // A vinyl file whose contents is the stdout of the command.
+		var wrapper; // The higher-level vinyl stream. `output` is the only thing piped through.
 
-		// Spawn the command
-		var cmd = command({file:file});
-		var title = cmd.split(/\s+/)[0];
-		var child = child_process.spawn('sh', ['-c', command({file:file})], {env:env});
-		child.stdin.end();
-
-		// Setup callback
-		if (typeof callback === 'function') {
-			child.stdout.on('end', callback);
-		}
-
-		// A stream to tee input to stdout
-		var tee = new Stream.Transform();
-		tee._transform = function (chunk, enc, done) {
-			var lines = chunk.toString().split('\n');
-			lines.forEach(function (line, index) {
-				// Skip the last line if it's blank
-				if (index === lines.length - 1 && line.length <= 1) return;
-				if (!opts.silent) console.log('[' + colorize(title, opts.color) + '] ' + line);
-			});
-			tee.push(chunk);
-			process.nextTick(done);
-			return;
-		}
-
-		// The file to be pushed down stream
-		var file = new Vinyl({
-			contents: (!opts.silent) ? child.stdout.pipe(tee) : child.stdout,
-			path: title
-		});
-
-		// The vinyl stream
-		var stream = new Stream.Transform({objectMode:true});
-		stream._transform = function (file, enc, done) {
-			stream.push(file);
-			process.nextTick(done);
-		};
-		stream.end(file);
-
-		// Error handling
-		child.on('close', function (code) {
-			if (code !== 0) {
-				var title = cmd.split(/\s+/)[0];
-				var err = 'Exited with status: ' + code;
-				if (!opts.silent) console.error('[' + colorize(title, 'red') + '] ' + err)
-				stream.emit('error', new Error(err));
+		// Spawn the command.
+		output = exec(command_template(), null, function (err) {
+			if (err) wrapper.emit('error', err);
+			if (typeof callback === 'function') {
+				process.nextTick(callback.bind(undefined, err));
 			}
 		});
 
-		return stream;
+		// Wrap the output in a vinyl stream.
+		wrapper = new stream.PassThrough({objectMode:true});
+		wrapper.end(output);
+
+		return wrapper;
 	}
 
 	return command_stream;
