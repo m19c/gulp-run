@@ -6,10 +6,13 @@
 
 var child_process = require('child_process');
 var stream = require('stream');
+var util = require('util');
 
 var _ = require('lodash');
-var colorize = require('ansi-color').set;
+var color = require('cli-color');
 var Vinyl = require('vinyl');
+
+var Logger = require('./lib/logger');
 
 
 /// `var cmd = run(command, [options])`
@@ -25,11 +28,7 @@ var Vinyl = require('vinyl');
 /// 1. `command` *(String)*: The command to run. It can be a [template] interpolating the vinyl file
 ///     as the variable `file`.
 /// 2. `[options]` *(Object)*:
-///     - `silent` *(Boolean)*: If true, tee the command's output to `process.stdout` and
-///         `process.stderr` where appropriate with each line prepended by the string **"[*title*]
-///         "** where *title* is the command's name. Defaults to `false`.
-///     - `color` *(String)*: The color in which the title is printed. Defaults to `'cyan'` to
-///         distinguish the output of `gulp-run` from `gulp` proper.
+///     - `silent` *(Boolean)*: If true, do not print the command's output. Defaults to `false`.
 ///
 /// [template]: http://lodash.com/docs#template
 ///
@@ -50,54 +49,68 @@ var run = module.exports = function (command, opts) {
 
 	// Options
 	opts = _.defaults(opts||{}, {
-		color: 'cyan',
-		silent: false
+		silent: false,
+		verbosity: (opts && opts.silent) ? 1 : 2
 	});
 
-	// Compile the command template
+	// Compile the command template.
 	var command_template = _.template(command);
 
+	// Setup logging
+	var logger = new Logger(opts.verbosity);
+	logger.stream.pipe(process.stdout);
 
-	// `exec(command, [stdin], [callback])`
+
+	// exec(command, [input], [callback])
 	// --------------------------------------------------
 	// TODO: Document
 
-	var exec = function (command, stdin, callback) {
+	var exec = function (command, input, callback) {
 		var child; // The child process.
 		var env; // The environmental variables for the child.
 		var out_stream; // The contents of the returned vinyl file.
 
 		// Parse arguments.
 		if (typeof arguments[1] === 'function') {
-			stdin = null;
+			input = null;
 			callback = arguments[1];
 		}
 
-		// Message.
-		if (!opts.silent) console.log('[' + colorize('gulp-run', 'green') + '] ' + command);
+		// Log start message.
+		var start_message = '$ ' + color.cyan(command);
+		if (input && input.relative) {
+			start_message += ' <<< ' + input.relative;
+		}
+		logger.log(1, start_message);
 
-		// Setup env.
+		// Setup environment of child process.
 		env = process.env;
 		env.PATH = './node_modules/.bin:' + env.PATH;
 
 		// Spawn the process.
-		child = child_process.spawn('sh', ['-c', command], {env:env});
+		child = child_process.spawn('sh', ['-c', command], {env: env});
+
+		// When the child process is done.
 		child.on('close', function (code) {
-			var err;
+			var err; // Only defined if an error occured
+
+			// Handle errors
 			if (code !== 0) {
-				err = 'Exited with status code ' + code;
-				if (!opts.silent) console.error('[' + colorize('gulp-run', 'red') + '] ' + err);
+				var error_message = "`" + command + "` exited with code " + code;
+				err = new Error(error_message);
+				logger.log(1, error_message);
 			}
+
 			if (typeof callback === 'function') {
 				process.nextTick(callback.bind(undefined, err));
 			}
 		});
 
 		// Handle input.
-		if (stdin && typeof stdin.pipe === 'function') {
-			stdin.pipe(child.stdin);
-		} else if (stdin !== undefined && stdin !== null) {
-			child.stdin.end(stdin.toString());
+		if (input && typeof input.pipe === 'function') {
+			input.pipe(child.stdin);
+		} else if (input !== undefined && input !== null) {
+			child.stdin.end(input.toString());
 		} else {
 			child.stdin.end();
 		}
@@ -106,10 +119,10 @@ var run = module.exports = function (command, opts) {
 		out_stream = new stream.Transform();
 		out_stream._transform = function (chunk, enc, callback) {
 			out_stream.push(chunk);
-			if (!opts.silent) process.stdout.write(chunk.toString());
-			process.nextTick(callback);
+			logger.write(2, chunk, enc, callback);
 		};
 		child.stdout.pipe(out_stream);
+		child.stderr.pipe(logger.stream);
 
 		// Return a vinyl file wrapping the command's stdout.
 		return new Vinyl({
@@ -127,16 +140,10 @@ var run = module.exports = function (command, opts) {
 	command_stream._transform = function (file, enc, done) {
 		var output;
 
-		// Null files pass through
-		if (file.isNull()) {
-			command_stream.push(file);
-			process.nextTick(done);
-			return;
-		}
-
 		// Spawn the command.
 		output = exec(command_template({file:file}), file, function (err) {
 			if (err) command_stream.emit('error', err);
+			else process.nextTick(done);
 		});
 
 		// Push downstream a vinyl file wrapping the command's stdout.

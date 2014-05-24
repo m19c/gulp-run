@@ -14,7 +14,7 @@ describe('gulp-run', function () {
 
 	it('includes `./node_modules/.bin` on the PATH', function (done) {
 
-		run('echo $PATH', {silent:true}).exec()
+		run('echo $PATH', {verbosity:0}).exec()
 			.pipe(compare(/(^|:)\.\/node_modules\/\.bin/))
 			.pipe(call(done))
 
@@ -25,20 +25,20 @@ describe('gulp-run', function () {
 
 		it('works with buffers', function (done) {
 
-			gulp.src(sample_filename, {buffer:true})    // Each line is the line number.
-				.pipe(run('awk "NR % 2 == 0"'))         // Get the even lines with awk.
-				.pipe(compare('2\n4\n6\n8\n10\n12\n'))  // Compare the output.
-				.pipe(call(done))                       // Profit.
+			gulp.src(sample_filename, {buffer:true})            // Each line is the line number.
+				.pipe(run('awk "NR % 2 == 0"', {verbosity:0})) // Get the even lines with awk.
+				.pipe(compare('2\n4\n6\n8\n10\n12\n'))         // Compare the output.
+				.pipe(call(done))                              // Profit.
 
 		});
 
 
 		it('works with streams', function (done) {
 
-			gulp.src(sample_filename, {buffer:false})   // Each line is the line number.
-				.pipe(run('awk "NR % 2 == 0"'))         // Get the even lines with awk.
-				.pipe(compare('2\n4\n6\n8\n10\n12\n'))  // Compare the output.
-				.pipe(call(done))                       // Profit.
+			gulp.src(sample_filename, {buffer:false})           // Each line is the line number.
+				.pipe(run('awk "NR % 2 == 0"', {verbosity:0})) // Get the even lines with awk.
+				.pipe(compare('2\n4\n6\n8\n10\n12\n'))         // Compare the output.
+				.pipe(call(done))                              // Profit.
 
 		});
 
@@ -46,7 +46,7 @@ describe('gulp-run', function () {
 		it('supports command templates, i.e. `echo <%= file.path %>`', function (done) {
 
 			gulp.src(sample_filename)
-				.pipe(run('echo <%= file.path %>'))    // echo the name of the file.
+				.pipe(run('echo <%= file.path %>', {verbosity:0})) // echo the name of the file.
 				.pipe(compare(sample_filename + '\n'))
 				.pipe(call(done))
 
@@ -56,7 +56,7 @@ describe('gulp-run', function () {
 		it('emits an `error` event on a failed command', function (done) {
 
 				gulp.src(sample_filename)
-					.pipe(run('return 1', {silent: true})) // Non-zero exit code
+					.pipe(run('exit 1', {verbosity:0})) // Non-zero exit code
 					.on('error', function () {
 						done();
 					});
@@ -73,7 +73,7 @@ describe('gulp-run', function () {
 			var start_time = process.hrtime()[0]; // Current time in seconds
 
 			// Sleep for 1s, then callback
-			run('sleep 1').exec(function () {
+			run('sleep 1', {verbosity:0}).exec(function () {
 				var delta = process.hrtime()[0] - start_time; // Time in seconds
 				expect(delta).to.equal(1);
 				done();
@@ -84,7 +84,7 @@ describe('gulp-run', function () {
 
 		it('returns a vinyl stream wrapping stdout', function (done) {
 
-			run('echo Hello World', {silent:true}).exec() // Start a command with `.exec()`.
+			run('echo Hello World', {verbosity:0}).exec() // Start a command with `.exec()`.
 				.pipe(compare('Hello World\n'))          // stdout piped as a Vinyl file.
 				.pipe(call(done))
 
@@ -93,7 +93,7 @@ describe('gulp-run', function () {
 
 		it('emits an `error` event on a failed command', function (done) {
 
-			run('return 1', {silent:true}).exec() // Non-zero exit code
+			run('exit 1', {verbosity:0}).exec() // Non-zero exit code
 				.on('error', function () {
 					done();
 				});
