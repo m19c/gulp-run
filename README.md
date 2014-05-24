@@ -25,11 +25,11 @@ Additionally, `./node_modules/.bin` is prepended to the PATH for the child proce
     as the variable `file`.
 2. `[options]` *(Object)*:
     - `env` *(Object)*: The environmental variables for the child process. Defaults to
-        `process.env`. The path `node_modules/.bin` is automatically prepended to `env.PATH`.
+        `process.env`. The path `node_modules/.bin` is automatically prepended to the PATH.
     - `cwd` *(String)*: The initial working directory for the child process. Defaults to
         `process.cwd()`.
     - `silent` *(Boolean)*: If true, do not print the command's output. This is the same as
-        setting `verbosity` to 1. Defaults to `false`.
+        setting verbosity to 1. Defaults to `false`.
     - `verbosity` *(Number)*: Sets the verbosity level. Defaults to `2`.
         - `0` never outputs anything.
         - `1` outputs basic logs.
