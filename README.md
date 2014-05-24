@@ -24,11 +24,16 @@ Additionally, `./node_modules/.bin` is prepended to the PATH for the child proce
 1. `command` *(String)*: The command to run. It can be a [template] interpolating the vinyl file
     as the variable `file`.
 2. `[options]` *(Object)*:
-    - `silent` *(Boolean)*: If true, tee the command's output to `process.stdout` and
-        `process.stderr` where appropriate with each line prepended by the string **"[*title*]
-        "** where *title* is the command's name. Defaults to `false`.
-    - `color` *(String)*: The color in which the title is printed. Defaults to `'cyan'` to
-        distinguish the output of `gulp-run` from `gulp` proper.
+    - `env` *(Object)*: The environmental variables for the child process. Defaults to
+        `process.env`. The path `node_modules/.bin` is automatically prepended to `env.PATH`.
+    - `cwd` *(String)*: The initial working directory for the child process. Defaults to
+        `process.cwd()`.
+    - `silent` *(Boolean)*: If true, do not print the command's output. This is the same as
+        setting `verbosity` to 1. Defaults to `false`.
+    - `verbosity` *(Number)*: Sets the verbosity level. Defaults to `2`.
+        - `0` never outputs anything.
+        - `1` outputs basic logs.
+        - `2` outputs basic logs and the stdout of the child process.
 
 #### Returns
 *(Stream.Transform in Object Mode)*: The through stream you so desire.

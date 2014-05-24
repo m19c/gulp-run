@@ -5,6 +5,7 @@
 'use strict';
 
 var child_process = require('child_process');
+var pathlib = require('path');
 var stream = require('stream');
 var util = require('util');
 
@@ -28,7 +29,16 @@ var Logger = require('./lib/logger');
 /// 1. `command` *(String)*: The command to run. It can be a [template] interpolating the vinyl file
 ///     as the variable `file`.
 /// 2. `[options]` *(Object)*:
-///     - `silent` *(Boolean)*: If true, do not print the command's output. Defaults to `false`.
+///     - `env` *(Object)*: The environmental variables for the child process. Defaults to
+///         `process.env`. The path `node_modules/.bin` is automatically prepended to `env.PATH`.
+///     - `cwd` *(String)*: The initial working directory for the child process. Defaults to
+///         `process.cwd()`.
+///     - `silent` *(Boolean)*: If true, do not print the command's output. This is the same as
+///         setting `verbosity` to 1. Defaults to `false`.
+///     - `verbosity` *(Number)*: Sets the verbosity level. Defaults to `2`.
+///         - `0` never outputs anything.
+///         - `1` outputs basic logs.
+///         - `2` outputs basic logs and the stdout of the child process.
 ///
 /// [template]: http://lodash.com/docs#template
 ///
@@ -49,6 +59,8 @@ var run = module.exports = function (command, opts) {
 
 	// Options
 	opts = _.defaults(opts||{}, {
+		cwd: process.cwd(),
+		env: process.env,
 		silent: false,
 		verbosity: (opts && opts.silent) ? 1 : 2
 	});
@@ -84,11 +96,10 @@ var run = module.exports = function (command, opts) {
 		logger.log(1, start_message);
 
 		// Setup environment of child process.
-		env = process.env;
-		env.PATH = './node_modules/.bin:' + env.PATH;
+		opts.env.PATH = pathlib.join('node_modules', '.bin') + ':' + opts.env.PATH;
 
 		// Spawn the process.
-		child = child_process.spawn('sh', ['-c', command], {env: env});
+		child = child_process.spawn('sh', ['-c', command], {env:opts.env, cwd:opts.cwd});
 
 		// When the child process is done.
 		child.on('close', function (code) {
@@ -133,6 +144,8 @@ var run = module.exports = function (command, opts) {
 	}
 
 
+	// The stream.Transform interface
+	// --------------------------------------------------
 	// This method is called automatically for each file piped into the stream. It spawns a
 	// command for each file, using the file's contents as stdin, and pushes downstream a new file
 	// wrapping stdout.

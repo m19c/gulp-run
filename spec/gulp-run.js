@@ -15,7 +15,16 @@ describe('gulp-run', function () {
 	it('includes `./node_modules/.bin` on the PATH', function (done) {
 
 		run('echo $PATH', {verbosity:0}).exec()
-			.pipe(compare(/(^|:)\.\/node_modules\/\.bin/))
+			.pipe(compare(/(^|:)node_modules\/\.bin/))
+			.pipe(call(done))
+
+	});
+
+
+	it('lets you set the initial cwd of the command', function (done) {
+
+		run('pwd', {cwd:'/', verbosity:0}).exec()
+			.pipe(compare('/\n'))
 			.pipe(call(done))
 
 	});
