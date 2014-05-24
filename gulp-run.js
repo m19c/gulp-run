@@ -65,6 +65,9 @@ var run = module.exports = function (command, opts) {
 		verbosity: (opts && opts.silent) ? 1 : 2
 	});
 
+	// If `opts.silent` and `opts.verbosity` disagree, verbosity wins
+	opts.silent = (opts && opts.verbosity < 2) ? true : false;
+
 	// Compile the command template.
 	var command_template = _.template(command);
 
@@ -91,7 +94,10 @@ var run = module.exports = function (command, opts) {
 		// Log start message.
 		var start_message = '$ ' + color.cyan(command);
 		if (input && input.relative) {
-			start_message += ' <<< ' + input.relative;
+			start_message += ' < ' + color.magenta(input.relative);
+		}
+		if (opts.silent) {
+			start_message += color.blackBright(' # Silenced');
 		}
 		logger.log(1, start_message);
 
