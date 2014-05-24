@@ -153,6 +153,8 @@ var run = module.exports = function (command, opts) {
 	command_stream._transform = function (file, enc, done) {
 		var output;
 
+		file.base = process.cwd();
+
 		// Spawn the command.
 		output = exec(command_template({file:file}), file, function (err) {
 			if (err) command_stream.emit('error', err);
