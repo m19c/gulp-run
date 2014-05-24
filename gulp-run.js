@@ -68,10 +68,6 @@ var run = module.exports = function (command, opts) {
 	// Compile the command template.
 	var command_template = _.template(command);
 
-	// Setup logging
-	var logger = new Logger(opts.verbosity);
-	logger.stream.pipe(process.stdout);
-
 
 	// exec(command, [input], [callback])
 	// --------------------------------------------------
@@ -87,6 +83,10 @@ var run = module.exports = function (command, opts) {
 			input = null;
 			callback = arguments[1];
 		}
+
+		// Setup logging.
+		var logger = new Logger(opts.verbosity);
+		logger.stream.pipe(process.stdout);
 
 		// Log start message.
 		var start_message = '$ ' + color.cyan(command);
