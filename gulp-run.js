@@ -102,7 +102,7 @@ var run = module.exports = function (command, opts) {
 		logger.log(1, start_message);
 
 		// Setup environment of child process.
-		opts.env.PATH = pathlib.join('node_modules', '.bin') + ':' + opts.env.PATH;
+		opts.env.PATH = pathlib.join(__dirname, '../../node_modules', '.bin') + ':' + opts.env.PATH;
 
 		// Spawn the process.
 		child = child_process.spawn('sh', ['-c', command], {env:opts.env, cwd:opts.cwd});
