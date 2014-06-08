@@ -12,10 +12,10 @@ describe('gulp-run', function () {
 	var sample_filename = Path.join(__dirname, 'sample.input.txt');
 
 
-	it('includes `./node_modules/.bin` on the PATH', function (done) {
+	it('includes `node_modules/.bin` on the PATH', function (done) {
 
 		run('echo $PATH', {verbosity:0}).exec()
-			.pipe(compare(/(^|:)node_modules\/\.bin/))
+			.pipe(compare(/(^|:)[^:]+node_modules\/\.bin/))
 			.pipe(call(done))
 
 	});
