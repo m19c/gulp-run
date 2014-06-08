@@ -4,10 +4,9 @@
 
 'use strict';
 
-var child_process = require('child_process');
+var childProcess = require('child_process');
 var pathlib = require('path');
 var stream = require('stream');
-var util = require('util');
 
 var _ = require('lodash');
 var color = require('cli-color');
@@ -54,8 +53,8 @@ var Logger = require('./lib/logger');
 /// })
 /// ```
 
-var run = module.exports = function (command, opts) {
-	var command_stream = new stream.Transform({objectMode: true}); // The stream of vinyl files.
+module.exports = function (command, opts) {
+	var commandStream = new stream.Transform({objectMode: true}); // The stream of vinyl files.
 
 	// Options
 	opts = _.defaults(opts||{}, {
@@ -69,7 +68,7 @@ var run = module.exports = function (command, opts) {
 	opts.silent = (opts && opts.verbosity < 2) ? true : false;
 
 	// Compile the command template.
-	var command_template = _.template(command);
+	var commandTemplate = _.template(command);
 
 
 	// exec(command, [input], [callback])
@@ -78,8 +77,7 @@ var run = module.exports = function (command, opts) {
 
 	var exec = function (command, input, callback) {
 		var child; // The child process.
-		var env; // The environmental variables for the child.
-		var out_stream; // The contents of the returned vinyl file.
+		var outStream; // The contents of the returned vinyl file.
 
 		// Parse arguments.
 		if (typeof arguments[1] === 'function') {
@@ -92,20 +90,20 @@ var run = module.exports = function (command, opts) {
 		logger.stream.pipe(process.stdout);
 
 		// Log start message.
-		var start_message = '$ ' + color.cyan(command);
+		var startMessage = '$ ' + color.cyan(command);
 		if (input && input.relative) {
-			start_message += ' < ' + color.magenta(input.relative);
+			startMessage += ' < ' + color.magenta(input.relative);
 		}
 		if (opts.silent) {
-			start_message += color.blackBright(' # Silenced');
+			startMessage += color.blackBright(' # Silenced');
 		}
-		logger.log(1, start_message);
+		logger.log(1, startMessage);
 
 		// Setup environment of child process.
 		opts.env.PATH = pathlib.join(__dirname, '../../node_modules', '.bin') + ':' + opts.env.PATH;
 
 		// Spawn the process.
-		child = child_process.spawn('sh', ['-c', command], {env:opts.env, cwd:opts.cwd});
+		child = childProcess.spawn('sh', ['-c', command], {env:opts.env, cwd:opts.cwd});
 
 		// When the child process is done.
 		child.on('close', function (code) {
@@ -113,9 +111,9 @@ var run = module.exports = function (command, opts) {
 
 			// Handle errors
 			if (code !== 0) {
-				var error_message = "`" + command + "` exited with code " + code;
-				err = new Error(error_message);
-				logger.log(1, error_message);
+				var errorMessage = "`" + command + "` exited with code " + code;
+				err = new Error(errorMessage);
+				logger.log(1, errorMessage);
 			}
 
 			if (typeof callback === 'function') {
@@ -133,21 +131,21 @@ var run = module.exports = function (command, opts) {
 		}
 
 		// Handle output.
-		out_stream = new stream.Transform();
-		out_stream._transform = function (chunk, enc, callback) {
-			out_stream.push(chunk);
+		outStream = new stream.Transform();
+		outStream._transform = function (chunk, enc, callback) {
+			outStream.push(chunk);
 			logger.write(2, chunk, enc, callback);
 		};
-		child.stdout.pipe(out_stream);
+		child.stdout.pipe(outStream);
 		child.stderr.pipe(logger.stream);
 
 		// Return a vinyl file wrapping the command's stdout.
 		return new Vinyl({
 			path: command.split(/\s+/)[0], // first word of the command
-			contents: out_stream
+			contents: outStream
 		});
 
-	}
+	};
 
 
 	// The stream.Transform interface
@@ -156,20 +154,20 @@ var run = module.exports = function (command, opts) {
 	// command for each file, using the file's contents as stdin, and pushes downstream a new file
 	// wrapping stdout.
 
-	command_stream._transform = function (file, enc, done) {
+	commandStream._transform = function (file, enc, done) {
 		var output;
 
 		file.base = process.cwd();
 
 		// Spawn the command.
-		output = exec(command_template({file:file}), file, function (err) {
-			if (err) command_stream.emit('error', err);
+		output = exec(commandTemplate({file:file}), file, function (err) {
+			if (err) commandStream.emit('error', err);
 			else process.nextTick(done);
 		});
 
 		// Push downstream a vinyl file wrapping the command's stdout.
-		command_stream.push(output);
-	}
+		commandStream.push(output);
+	};
 
 
 	/// `cmd.exec([callback])`
@@ -196,12 +194,12 @@ var run = module.exports = function (command, opts) {
 	/// })
 	/// ```
 
-	command_stream.exec = function (callback) {
+	commandStream.exec = function (callback) {
 		var output; // A vinyl file whose contents is the stdout of the command.
 		var wrapper; // The higher-level vinyl stream. `output` is the only thing piped through.
 
 		// Spawn the command.
-		output = exec(command_template(), null, function (err) {
+		output = exec(commandTemplate(), null, function (err) {
 			if (err) wrapper.emit('error', err);
 			if (typeof callback === 'function') {
 				process.nextTick(callback.bind(undefined, err));
@@ -213,7 +211,7 @@ var run = module.exports = function (command, opts) {
 		wrapper.end(output);
 
 		return wrapper;
-	}
+	};
 
-	return command_stream;
-}
+	return commandStream;
+};
