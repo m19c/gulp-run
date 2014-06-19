@@ -53,7 +53,7 @@ var Logger = require('./lib/logger');
 /// })
 /// ```
 
-module.exports = function (command, opts) {
+module.exports = function run(command, opts) {
 	var commandStream = new stream.Transform({objectMode: true}); // The stream of vinyl files.
 
 	// Options
@@ -75,7 +75,7 @@ module.exports = function (command, opts) {
 	// --------------------------------------------------
 	// TODO: Document
 
-	var exec = function (command, input, callback) {
+	function exec(command, input, callback) {
 		var child; // The child process.
 		var outStream; // The contents of the returned vinyl file.
 
@@ -116,6 +116,8 @@ module.exports = function (command, opts) {
 				logger.log(1, errorMessage);
 			}
 
+			logger.close();
+
 			if (typeof callback === 'function') {
 				process.nextTick(callback.bind(undefined, err));
 			}
@@ -145,7 +147,7 @@ module.exports = function (command, opts) {
 			contents: outStream
 		});
 
-	};
+	}
 
 
 	// The stream.Transform interface
