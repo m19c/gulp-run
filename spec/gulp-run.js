@@ -9,6 +9,10 @@ var gulp = require('gulp');
 var run = require('../');
 
 
+// We have a lot of loggers listening on stdout
+// process.stdout.setMaxListeners(Infinity);
+
+
 describe('gulp-run', function () {
 
 	var sampleFilename = Path.join(__dirname, 'sample.input.txt');
@@ -32,11 +36,31 @@ describe('gulp-run', function () {
 	});
 
 
+	it('supports multiple verbosity levels', function (done) {
+
+		var count = 0;
+		function almostDone() {
+			count += 1;
+			if (count >= 3) return done();
+		}
+
+		run('echo "testing verbosity:0"', {verbosity:0}).exec()
+			.pipe(call(almostDone));
+
+		run('echo "testing verbosity:1"', {verbosity:1}).exec()
+			.pipe(call(almostDone));
+
+		run('echo "testing verbosity:2"', {verbosity:2}).exec()
+			.pipe(call(almostDone));
+
+	});
+
+
 	describe('in a vinyl pipeline', function () {
 
 		it('works with buffers', function (done) {
 
-			gulp.src(sampleFilename, {buffer:true})             // Each line is the line number.
+			gulp.src(sampleFilename, {buffer:true})            // Each line is the line number.
 				.pipe(run('awk "NR % 2 == 0"', {verbosity:0})) // Get the even lines with awk.
 				.pipe(compare('2\n4\n6\n8\n10\n12\n'))         // Compare the output.
 				.pipe(call(done));                             // Profit.
@@ -46,7 +70,7 @@ describe('gulp-run', function () {
 
 		it('works with streams', function (done) {
 
-			gulp.src(sampleFilename, {buffer:false})            // Each line is the line number.
+			gulp.src(sampleFilename, {buffer:false})           // Each line is the line number.
 				.pipe(run('awk "NR % 2 == 0"', {verbosity:0})) // Get the even lines with awk.
 				.pipe(compare('2\n4\n6\n8\n10\n12\n'))         // Compare the output.
 				.pipe(call(done));                             // Profit.
@@ -96,7 +120,7 @@ describe('gulp-run', function () {
 		it('returns a vinyl stream wrapping stdout', function (done) {
 
 			run('echo Hello World', {verbosity:0}).exec() // Start a command with `.exec()`.
-				.pipe(compare('Hello World\n'))          // stdout piped as a Vinyl file.
+				.pipe(compare('Hello World\n'))           // stdout piped as a Vinyl file.
 				.pipe(call(done));
 
 		});
@@ -172,54 +196,6 @@ function compare(match) {
 		expect(contents).to.match(match);
 		stream.push(file);
 		process.nextTick(callback);
-		return;
-	};
-	return stream;
-}
-
-
-// A vinyl stream that tees the contents of the incoming file to the given text stream.
-// Useful for debugging, like `stream.pipe(tee(process.stdout))` to print the stream.
-function tee(out) {
-	var stream = new Stream.Transform({objectMode:true});
-	stream._transform = function (file, enc, callback) {
-		var push = this.push.bind(this);
-
-		if (file.isStream()) {
-			var newFile = file.clone();
-			newFile.contents = new Stream.Transform();
-			newFile.contents._transform = function (chunk, enc, callback) {
-				this.push(chunk);
-				return callback();
-			};
-			file.contents.on('readable', function () {
-				var chunk;
-				(function loop() {
-					chunk = file.contents.read();
-					if (chunk) {
-						out.write(chunk);
-						newFile.contents.write(chunk);
-						loop();
-					}
-				})();
-			});
-			file.contents.on('end', function () {
-				newFile.contents.end();
-				push(newFile);
-				process.nextTick(callback);
-			});
-			return;
-		}
-
-		if (file.isBuffer()) {
-			out.write(file.contents);
-			push(file);
-			process.nextTick(callback);
-			return;
-		}
-
-		// Else - file.isNull()
-		push(file);
 		return;
 	};
 	return stream;
