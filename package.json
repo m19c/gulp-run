@@ -33,7 +33,7 @@
   "dependencies": {
     "cli-color": "^0.3.2",
     "lodash": "^2.4.1",
-    "stream-buffer": "git://github.com/cbarrick/StreamBuffer#v0.x",
+    "stream-buffer": "git://github.com/cbarrick/StreamBuffer#v0.1.x",
     "vinyl": "^0.2.3"
   }
 }
