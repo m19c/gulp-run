@@ -2,7 +2,9 @@ gulp-run
 ==================================================
 Use shell commands in your gulp or vinyl pipeline.
 
-Many Unix commands are built around the idea of piping. Let's take advantage of that in our Gulp pipeline! This plugin is inspired by [gulp-shell] and [gulp-spawn] and attempts to improve upon their great work.
+Many Unix commands are built around the idea of piping. Let's take advantage of that in our Gulp pipeline! To use gulp-run, simply tell it the command to process your files; gulp-run accepts any command you could write into your shell, including I/O redirection like `cat foo.txt - bar.txt | python < baz.py`. Additionally, your path includes `node_modules/.bin`, so you can call programs supplied by your installed packages.
+
+This plugin is inspired by [gulp-shell] and [gulp-spawn] and attempts to improve upon their great work.
 
 
 Usage
@@ -14,8 +16,8 @@ var run = require('gulp-run');
 
 // Use gulp-run to start a pipeline
 gulp.task('hello-world', function () {
-  run('echo Hello World').exec()  // prints "Hello World\n"
-    .pipe(gulp.dest('output'))    // Writes "Hello World\n" to output/echo
+  run('echo Hello World').exec()  // prints "Hello World\n".
+    .pipe(gulp.dest('output'))    // Writes "Hello World\n" to output/echo.
 })
 
 
@@ -28,8 +30,8 @@ gulp.task('even-lines', function () {
 
 
 // Use gulp-run without gulp
-var cmd = new run.Command('cat');  // Create a command object for `cat`
-cmd.exec('hello world');           // Call `cat` with 'hello world' on stdin
+var cmd = new run.Command('cat');  // Create a command object for `cat`.
+cmd.exec('hello world');           // Call `cat` with 'hello world' on stdin.
 ```
 
 
@@ -44,7 +46,7 @@ See <a href="#run.Command">`run.Command`</a> for a description of the arguments.
 
 #### Returns
 
-*(stream.Transform in Object Mode)*: Returns a Transform stream that receives Vinyl files. For each input, a sub process is started taking the contents of the Vinyl file as standard input and a new file is pushed downstream containing the process's standard output.
+*(stream.Transform in Object Mode)*: Returns a Transform stream that receives Vinyl files. For each input, a subprocess is started taking the contents of the input on stdin. A new file is pushed downstream containing the process's stdout.
 
 #### Example
 ```javascript
@@ -59,7 +61,7 @@ gulp.task('even-lines', function () {
 
 ### `run(...).exec([stdin], [callback])`
 
-Start a gulp pipeline and execute the command immediately pushing the results downstream.
+Start a gulp pipeline and execute the command immediately, pushing the results downstream.
 
 #### Arguments
 
@@ -73,8 +75,8 @@ Start a gulp pipeline and execute the command immediately pushing the results do
 #### Example
 ```javascript
 gulp.task('hello-world', function () {
-  run('echo Hello World').exec()  // prints "[echo] Hello World\n"
-    .pipe(gulp.dest('output'))    // Writes "Hello World\n" to output/echo
+  run('echo Hello World').exec()  // prints "[echo] Hello World\n".
+    .pipe(gulp.dest('output'))    // Writes "Hello World\n" to output/echo.
 })
 ```
 
@@ -86,10 +88,10 @@ Represents a command to be run in a subshell.
 
 #### Arguments
 
-1. `template` *(String)*: The command to run. It can be a [template] interpolating the vinyl file as the variable `file`. The template need not interpolate anything. A simple shell command will do just fine. The command is passed as an argument to `sh -c`, so I/O redirection and the like will work as you would expect from a terminal.
+1. `template` *(String)*: The command to run. It can be a [template] interpolating the variable `file` which references the [Vinyl] file being input. The template need not interpolate anything; a simple shell command will do just fine. The command is passed as an argument to `sh -c`, so I/O redirection and the like will work as you would expect from a terminal.
 
 2. `options` *(Object)*:
-    - `env` *(Object)*: The environmental variables for the child process. Defaults to `process.env`. Your `node_modules/.bin` is automatically prepended to the PATH.
+    - `env` *(Object)*: The environmental variables for the child process. Defaults to `process.env`.
     - `cwd` *(String)*: The initial working directory for the child process. Defaults to `process.cwd()`.
     - `silent` *(Boolean)*: If true, do not print the command's output. This is the same as setting verbosity to 1. Defaults to false.
     - `verbosity` *(Number)*: Sets the verbosity level. Defaults to `2`.
@@ -113,8 +115,8 @@ Spawn a subshell and execute the command.
 
 #### Example
 ```javascript
-var cmd = new run.Command('cat');  // Create a command object for `cat`
-cmd.exec('hello world');           // Call `cat` with 'hello world' on stdin
+var cmd = new run.Command('cat');  // Create a command object for `cat`.
+cmd.exec('hello world');           // Call `cat` with 'hello world' on stdin.
 ```
 
 ---
