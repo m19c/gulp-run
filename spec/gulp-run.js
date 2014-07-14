@@ -2,7 +2,7 @@
 
 /* global describe, it */
 
-var Path = require('path');
+var pathlib = require('path');
 var Stream = require('stream');
 var expect = require('chai').expect;
 var gulp = require('gulp');
@@ -15,13 +15,14 @@ var run = require('../');
 
 describe('gulp-run', function () {
 
-	var sampleFilename = Path.join(__dirname, 'sample.input.txt');
+	var sampleFilename = pathlib.join(__dirname, 'sample.input.txt');
 
 
 	it('includes `node_modules/.bin` on the PATH', function (done) {
+		var nodeModulesPath = pathlib.join(__dirname, '..', '..', 'node_modules', '.bin');
 
 		run('echo $PATH', {verbosity:0}).exec()
-			.pipe(compare(/(^|:)[^:]+node_modules\/\.bin/))
+			.pipe(compare(new RegExp('^' + nodeModulesPath)))
 			.pipe(call(done));
 
 	});
