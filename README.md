@@ -6,6 +6,8 @@ Many Unix commands are built around the idea of piping. Let's take advantage of 
 
 This plugin is inspired by [gulp-shell] and [gulp-spawn] and attempts to improve upon their great work.
 
+> Experimental Windows support has landed. Testers needed.
+
 
 Usage
 --------------------------------------------------
