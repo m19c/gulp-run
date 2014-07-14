@@ -36,7 +36,9 @@ describe('gulp-run', function () {
 	});
 
 
-	it('supports multiple verbosity levels', function (done) {
+	// Skip this test since the output conflicts with the test runner.
+	// Do remember to run this every once in a while.
+	it.skip('supports verbosity levels (test skipped because it prints)', function (done) {
 
 		var count = 0;
 		function almostDone() {
