@@ -37,24 +37,44 @@ describe('gulp-run', function () {
 	});
 
 
-	// Skip this test since the output conflicts with the test runner.
-	// Do remember to run this every once in a while.
-	it.skip('supports verbosity levels (test skipped because it prints)', function (done) {
+	it('supports verbosity levels', function (done) {
+		var colors = require('gulp-util').colors;
+
+		// Stub out stdout.write
+		var stdoutWrite = process.stdout.write;
+		var writtenOutput = '';
+		process.stdout.write = function (chunk, enc, callback) {
+			writtenOutput += chunk.toString(enc);
+			if (typeof callback === 'function') process.nextTick(callback);
+		};
 
 		var count = 0;
 		function almostDone() {
 			count += 1;
-			if (count >= 3) return done();
+			if (count >= 3) {
+				process.stdout.write = stdoutWrite;
+				return done();
+			}
 		}
 
-		run('echo "testing verbosity:0"', {verbosity:0}).exec()
-			.pipe(call(almostDone));
+		(new run.Command('echo "testing verbosity:0"', {verbosity:0})).exec(function () {
+			expect(writtenOutput).to.match(/^$/);
+			writtenOutput = '';
+			almostDone();
+		});
 
-		run('echo "testing verbosity:1"', {verbosity:1}).exec()
-			.pipe(call(almostDone));
+		(new run.Command('echo "testing verbosity:1"', {verbosity:1})).exec(function () {
+			var output = colors.stripColor(writtenOutput);
+			expect(output).to.match(/\[.*\] \$ echo "testing verbosity:1" # Silenced\n/);
+			writtenOutput = '';
+			almostDone();
+		});
 
-		run('echo "testing verbosity:2"', {verbosity:2}).exec()
-			.pipe(call(almostDone));
+		(new run.Command('echo "testing verbosity:2"', {verbosity:2})).exec(function () {
+			var output = colors.stripColor(writtenOutput);
+			expect(output).to.match(/\[.*\] \$ echo "testing verbosity:2"\ntesting verbosity:2/);
+			almostDone();
+		});
 
 	});
 
@@ -151,8 +171,8 @@ function call(callback1) {
 	var stream = new Stream.Transform({objectMode:true});
 	stream._transform = function (file, enc, callback2) {
 		this.push(file);
+		callback1();
 		process.nextTick(callback2);
-		process.nextTick(callback1);
 	};
 	return stream;
 }
