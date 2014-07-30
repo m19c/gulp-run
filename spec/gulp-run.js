@@ -19,7 +19,7 @@ describe('gulp-run', function () {
 
 
 	it('includes `node_modules/.bin` on the PATH', function (done) {
-		var nodeModulesPath = pathlib.join(__dirname, '..', '..', '..', 'node_modules', '.bin');
+		var nodeModulesPath = pathlib.join(__dirname, '..', '..', '.bin');
 
 		run('echo $PATH', {verbosity:0}).exec()
 			.pipe(compare(new RegExp('^' + nodeModulesPath)))
