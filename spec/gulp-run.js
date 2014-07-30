@@ -65,14 +65,14 @@ describe('gulp-run', function () {
 
 		(new run.Command('echo "testing verbosity:1"', {verbosity:1})).exec(function () {
 			var output = colors.stripColor(writtenOutput);
-			expect(output).to.match(/\[.*\] \$ echo "testing verbosity:1" # Silenced\n/);
+			expect(output).to.match(/\[.*\] \$ echo "testing verbosity:1" # Silenced\s*\n/);
 			writtenOutput = '';
 			almostDone();
 		});
 
 		(new run.Command('echo "testing verbosity:2"', {verbosity:2})).exec(function () {
 			var output = colors.stripColor(writtenOutput);
-			expect(output).to.match(/\[.*\] \$ echo "testing verbosity:2"\ntesting verbosity:2/);
+			expect(output).to.match(/\[.*\] \$ echo "testing verbosity:2"\s*\ntesting verbosity:2/);
 			almostDone();
 		});
 
