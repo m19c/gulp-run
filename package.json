@@ -1,6 +1,6 @@
 {
   "name": "gulp-run",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "Pipe to shell commands in gulp",
   "main": "gulp-run.js",
   "scripts": {
