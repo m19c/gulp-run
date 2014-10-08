@@ -24,7 +24,12 @@ var GulpRunner = module.exports = function run(template, opts) {
 	// A GulpRunner is a Vinyl transform stream that uses the `command` to process input.
 	Transform.call(this, {objectMode:true});
 	this._transform = function _transform(file, enc, callback) {
-		var newfile = command.exec(file, callback);
+		var stream = this,
+		    handleEnd = function(error) {
+		    	stream.push(null);
+		    	callback(error);
+                    },
+		    newfile = command.exec(file, handleEnd);
 		this.push(newfile);
 	};
 
