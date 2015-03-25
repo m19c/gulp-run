@@ -116,11 +116,19 @@ describe('gulp-run', function () {
 	describe('direct execution (`.exec`)', function () {
 
 		it('is asynchronous (this test sleeps for 1s)', function (done) {
+			var s = new Semaphore(2, done);
 			var startTime = process.hrtime()[0]; // Current time in seconds
+
+			// We spawn two sleeps that run in parallel
 			run('sleep 1', {verbosity:0}).exec(function () {
-				var delta = process.hrtime()[0] - startTime; // Time in seconds
+				var delta = process.hrtime()[0] - startTime;
 				expect(delta).to.equal(1);
-				done();
+				s.done();
+			});
+			run('sleep 1', {verbosity:0}).exec(function () {
+				var delta = process.hrtime()[0] - startTime;
+				expect(delta).to.equal(1);
+				s.done();
 			});
 		});
 
@@ -157,6 +165,16 @@ describe('gulp-run', function () {
 
 /// Helpers
 /// --------------------------------------------------
+
+// Constructs an async-semaphore that calls back when semaphore#done()
+// has been called a given number of times
+function Semaphore(count, callback) {
+	this.done = function () {
+		return (--count <= 0) ? callback() : this;
+	}
+	return this;
+}
+
 
 // A stream that calls a function whenever a file is piped in.
 function call(callback1) {
