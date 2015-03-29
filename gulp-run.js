@@ -45,7 +45,7 @@ var GulpRunner = module.exports = function run(template, opts) {
 
 	this.exec = function (stdin, callback) {
 		this.write(stdin, callback);
-		this.push(null);
+		this.end();
 		return this;
 	};
 
