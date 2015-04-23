@@ -98,6 +98,7 @@ Represents a command to be run in a subshell.
         - `0`: Do not print anything, ever.
         - `1`: Print the command being run and its stderr.
         - `2`: Print the command, its stderr, and its stdout.
+        - `3`: Print the command, its stderr, and its stdout progressivly. Not useful if you have concurrent gulp-run instances, as the outputs may get mixed.
     - `usePowerShell` *(Boolean)*: *Windows only*. If `true` uses the PowerShell instead of `cmd.exe` for command execution.
 
 ---

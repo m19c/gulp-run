@@ -69,6 +69,12 @@ describe('gulp-run', function () {
 				expect(output).to.match(/\[.*\] \$ echo "testing verbosity:2"\s*\ntesting verbosity:2/);
 				s.done();
 			});
+
+		(new run.Command('echo "testing verbosity:3"', {verbosity:3}))
+			.exec(function () {
+				var output = colors.stripColor(writtenOutput);
+				expect(output).to.match(/\[.*\] \$ echo "testing verbosity:3"\s*\ntesting verbosity:3/);
+			});
 	});
 
 
