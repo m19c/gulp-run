@@ -26,14 +26,14 @@
   "homepage": "https://github.com/cbarrick/gulp-run",
   "devDependencies": {
     "canopy": "^0.2.0",
-    "chai": "^1.9.1",
+    "chai": "^2.2.0",
     "gulp": "^3.6.2",
     "gulp-rename": "^1.2.0",
     "mocha": "^2.1.0"
   },
   "dependencies": {
     "gulp-util": "^3.0.0",
-    "lodash": "^2.4.1",
+    "lodash": "^3.7.0",
     "vinyl": "^0.4.6"
   }
 }
