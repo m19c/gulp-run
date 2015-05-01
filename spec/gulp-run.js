@@ -131,6 +131,18 @@ describe('gulp-run', function () {
 					.on('error', noop(done));
 		});
 
+		it('maintains metadata of incoming file', function (done) {
+			gulp.src(sampleFilename)
+				.pipe(inspect(function (file) {
+					file.custom = "custom metadata"
+				}))
+				.pipe(run('cat', {verbosity:0}))
+				.pipe(inspect(function (file) {
+					expect(file.custom).to.equal("custom metadata");
+				}))
+				.on('finish', done)
+		});
+
 	});
 
 
@@ -199,7 +211,7 @@ function noop(callback) {
 		callback = function(){};
 	}
 	return function () {
-		callback()
+		callback();
 	};
 }
 
@@ -221,7 +233,7 @@ function compare(match) {
 		match = new RegExp('^' + match.toString() + '$');
 	}
 	var stream = new Stream.Transform({objectMode:true});
-	stream._transform = function (file, end, callback) {
+	stream._transform = function (file, enc, callback) {
 		var contents;
 
 		if (file.isStream()) {
@@ -257,6 +269,17 @@ function compare(match) {
 		stream.push(file);
 		process.nextTick(callback);
 		return;
+	};
+	return stream;
+}
+
+// Returns a pass-through Vinyl stream that allows us to inspect the file
+function inspect(cb) {
+	var stream = new Stream.Transform({objectMode:true});
+	stream._transform = function (file, enc, callback) {
+		cb(file);
+		stream.push(file);
+		callback();
 	};
 	return stream;
 }
