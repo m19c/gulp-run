@@ -22,7 +22,7 @@ function GulpRunner(template, options) {
     return new GulpRunner(template, options);
   }
 
-  this.command = new Command(template, options);
+  this.command = new Command(template, options || {});
   Transform.call(this, { objectMode: true });
 }
 
