@@ -2,8 +2,8 @@
 
 // var path = require('path');
 // var gulp = require('gulp');
-var rename = require('gulp-rename');
-var run = require('../');
+// var rename = require('gulp-rename');
+// var run = require('../');
 // var util = require('./util');
 
 describe('gulp-run', function gulpRunTestCase() {
@@ -199,13 +199,13 @@ describe('gulp-run', function gulpRunTestCase() {
     //   ;
     // });
 
-    it('#35 - no callback if command not found', function commandNotFoundTest(done) {
-      run('nonexistant', { verbosity: 0 })
-        .exec()
-        .on('error', function handleError() {
-          done();
-        })
-      ;
-    });
+    // it('#35 - no callback if command not found', function commandNotFoundTest(done) {
+    //   run('nonexistant', { verbosity: 0 })
+    //     .exec()
+    //     .on('error', function handleError() {
+    //       done();
+    //     })
+    //   ;
+    // });
   });
 });
