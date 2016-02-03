@@ -118,15 +118,15 @@ describe('gulp-run', function gulpRunTestCase() {
     //   ;
     // });
 
-    it('supports command templates, i.e. `echo <%= file.path %>`', function templateTest(done) {
-      gulp.src(inputFileName)
-        .pipe(run('echo <%= file.path %>', {
-          verbosity: 0
-        }))
-        .pipe(util.compare(inputFileName + '\n'))
-        .on('finish', done)
-      ;
-    });
+    // it('supports command templates, i.e. `echo <%= file.path %>`', function templateTest(done) {
+    //   gulp.src(inputFileName)
+    //     .pipe(run('echo <%= file.path %>', {
+    //       verbosity: 0
+    //     }))
+    //     .pipe(util.compare(inputFileName + '\n'))
+    //     .on('finish', done)
+    //   ;
+    // });
 
     it('emits an `error` event on a failed command', function errorTest(done) {
       gulp.src(inputFileName)
