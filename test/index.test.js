@@ -176,12 +176,12 @@ describe('gulp-run', function gulpRunTestCase() {
     //   ;
     // });
 
-    it('emits an `error` event on a failed command', function emitErrorTest(done) {
-      run('exit 1', { verbosity: 0 })
-        .exec()
-        .on('error', util.noop(done))
-      ;
-    });
+    // it('emits an `error` event on a failed command', function emitErrorTest(done) {
+    //   run('exit 1', { verbosity: 0 })
+    //     .exec()
+    //     .on('error', util.noop(done))
+    //   ;
+    // });
 
 
     it('closes the stream when done', function streamCloseTest(done) {
