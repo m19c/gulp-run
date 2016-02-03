@@ -192,12 +192,12 @@ describe('gulp-run', function gulpRunTestCase() {
   });
 
   describe('issues', function issuesTestCase() {
-    it('#18 - file names and paths', function issue18(done) {
-      run('echo hello world', { cwd: './', verbosity: 0 }).exec()
-        .pipe(rename('dest.txt'))
-        .on('finish', done)
-      ;
-    });
+    // it('#18 - file names and paths', function issue18(done) {
+    //   run('echo hello world', { cwd: './', verbosity: 0 }).exec()
+    //     .pipe(rename('dest.txt'))
+    //     .on('finish', done)
+    //   ;
+    // });
 
     it('#35 - no callback if command not found', function commandNotFoundTest(done) {
       run('nonexistant', { verbosity: 0 })
