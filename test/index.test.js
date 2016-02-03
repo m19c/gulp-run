@@ -168,13 +168,13 @@ describe('gulp-run', function gulpRunTestCase() {
     //   }
     // });
 
-    it('returns a vinyl stream wrapping stdout', function wrappingStdOutTest(done) {
-      run('echo Hello World', { verbosity: 0 })
-        .exec()
-        .pipe(util.compare('Hello World\n'))
-        .on('finish', done)
-      ;
-    });
+    // it('returns a vinyl stream wrapping stdout', function wrappingStdOutTest(done) {
+    //   run('echo Hello World', { verbosity: 0 })
+    //     .exec()
+    //     .pipe(util.compare('Hello World\n'))
+    //     .on('finish', done)
+    //   ;
+    // });
 
     it('emits an `error` event on a failed command', function emitErrorTest(done) {
       run('exit 1', { verbosity: 0 })
