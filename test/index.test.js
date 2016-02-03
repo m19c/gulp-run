@@ -9,15 +9,14 @@ var util = require('./util');
 describe('gulp-run', function gulpRunTestCase() {
   var inputFileName = path.join(__dirname, '_resource/input.txt');
 
-  it('includes `node_modules/.bin` on the PATH', function includeNodeModulesTest(done) {
-    var nodeModulesPath = path.join(__dirname, '..', '..', '.bin');
-
-    run('echo $PATH', { verbosity: 0 }).exec()
-      .pipe(util.compare(new RegExp('^' + nodeModulesPath)))
-      .on('finish', done)
-    ;
-  });
-
+  // it('includes `node_modules/.bin` on the PATH', function includeNodeModulesTest(done) {
+  //   var nodeModulesPath = path.join(__dirname, '..', '..', '.bin');
+  //
+  //   run('echo $PATH', { verbosity: 0 }).exec()
+  //     .pipe(util.compare(new RegExp('^' + nodeModulesPath)))
+  //     .on('finish', done)
+  //   ;
+  // });
 
   it('lets you set the initial cwd of the command', function cwdTest(done) {
     run('pwd', { cwd: '/', verbosity: 0 }).exec()
