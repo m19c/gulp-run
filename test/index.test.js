@@ -4,7 +4,7 @@
 // var gulp = require('gulp');
 var rename = require('gulp-rename');
 var run = require('../');
-var util = require('./util');
+// var util = require('./util');
 
 describe('gulp-run', function gulpRunTestCase() {
   // var inputFileName = path.join(__dirname, '_resource/input.txt');
@@ -183,13 +183,12 @@ describe('gulp-run', function gulpRunTestCase() {
     //   ;
     // });
 
-
-    it('closes the stream when done', function streamCloseTest(done) {
-      run('echo Hello World', { verbosity: 0 })
-        .exec()
-        .on('finish', done)
-      ;
-    });
+    // it('closes the stream when done', function streamCloseTest(done) {
+    //   run('echo Hello World', { verbosity: 0 })
+    //     .exec()
+    //     .on('finish', done)
+    //   ;
+    // });
   });
 
   describe('issues', function issuesTestCase() {
