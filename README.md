@@ -14,7 +14,7 @@ var run = require('gulp-run');
 
 // use gulp-run to start a pipeline
 gulp.task('hello-world', function() {
-  run('echo Hello World').exec()    // prints "Hello World\n".
+  return run('echo Hello World').exec()    // prints "Hello World\n".
     .pipe(gulp.dest('output'))      // writes "Hello World\n" to output/echo.
   ;
 })
@@ -22,7 +22,8 @@ gulp.task('hello-world', function() {
 
 // use gulp-run in the middle of a pipeline:
 gulp.task('even-lines', function() {
-  gulp.src('path/to/input/*')           // get input files.
+  return gulp
+    .src('path/to/input/*')             // get input files.
     .pipe(run('awk "NR % 2 == 0"'))     // use awk to extract the even lines.
     .pipe(gulp.dest('path/to/output'))  // profit.
   ;
@@ -45,7 +46,8 @@ See <a href="#run.Command">`run.Command`</a> for a description of the arguments.
 #### Example
 ```javascript
 gulp.task('even-lines', function() {
-  gulp.src('path/to/input/*')           // get input files.
+  return gulp
+    .src('path/to/input/*')             // get input files.
     .pipe(run('awk "NR % 2 == 0"'))     // use awk to extract the even lines.
     .pipe(gulp.dest('path/to/output'))  // profit.
   ;
@@ -67,8 +69,8 @@ Start a gulp pipeline and execute the command immediately, pushing the results d
 #### Example
 ```javascript
 gulp.task('hello-world', function() {
-  run('echo Hello World').exec()  // prints "[echo] Hello World\n".
-    .pipe(gulp.dest('output'))    // writes "Hello World\n" to output/echo.
+  return run('echo Hello World').exec()  // prints "[echo] Hello World\n".
+    .pipe(gulp.dest('output'))           // writes "Hello World\n" to output/echo.
   ;
 })
 ```
