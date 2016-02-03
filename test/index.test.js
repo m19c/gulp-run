@@ -18,12 +18,12 @@ describe('gulp-run', function gulpRunTestCase() {
   //   ;
   // });
 
-  it('lets you set the initial cwd of the command', function cwdTest(done) {
-    run('pwd', { cwd: '/', verbosity: 0 }).exec()
-      .pipe(util.compare('/\n'))
-      .on('finish', done)
-    ;
-  });
+  // it('lets you set the initial cwd of the command', function cwdTest(done) {
+  //   run('pwd', { cwd: '/', verbosity: 0 }).exec()
+  //     .pipe(util.compare('/\n'))
+  //     .on('finish', done)
+  //   ;
+  // });
 
 
   describe.skip('verbosity levels', function verbosityTestCase() {
