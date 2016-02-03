@@ -72,4 +72,4 @@ gulp.task('example', function exampleTask() {
   ;
 });
 
-gulp.task('default', sequence(['lint', 'test'], 'codacy'));
+gulp.task('default', sequence('lint', 'test', 'codacy'));
