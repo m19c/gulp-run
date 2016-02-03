@@ -128,12 +128,12 @@ describe('gulp-run', function gulpRunTestCase() {
     //   ;
     // });
 
-    it('emits an `error` event on a failed command', function errorTest(done) {
-      gulp.src(inputFileName)
-        .pipe(run('exit 1', { verbosity: 0 }))
-        .on('error', util.noop(done))
-      ;
-    });
+    // it('emits an `error` event on a failed command', function errorTest(done) {
+    //   gulp.src(inputFileName)
+    //     .pipe(run('exit 1', { verbosity: 0 }))
+    //     .on('error', util.noop(done))
+    //   ;
+    // });
 
     it('maintains metadata of incoming file', function metaDataTest(done) {
       gulp.src(inputFileName)
