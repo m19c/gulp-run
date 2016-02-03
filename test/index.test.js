@@ -107,16 +107,16 @@ describe('gulp-run', function gulpRunTestCase() {
     //   ;
     // });
 
-    it('works with streams', function streamTest(done) {
-      // use awk to extract the even lines of a file
-      gulp.src(inputFileName, { buffer: false })
-        .pipe(run('awk "NR % 2 == 0"', {
-          verbosity: 0
-        }))
-        .pipe(util.compare('2\n4\n6\n8\n10\n12\n'))
-        .on('finish', done)
-      ;
-    });
+    // it('works with streams', function streamTest(done) {
+    //   // use awk to extract the even lines of a file
+    //   gulp.src(inputFileName, { buffer: false })
+    //     .pipe(run('awk "NR % 2 == 0"', {
+    //       verbosity: 0
+    //     }))
+    //     .pipe(util.compare('2\n4\n6\n8\n10\n12\n'))
+    //     .on('finish', done)
+    //   ;
+    // });
 
     it('supports command templates, i.e. `echo <%= file.path %>`', function templateTest(done) {
       gulp.src(inputFileName)
