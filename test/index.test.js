@@ -1,13 +1,13 @@
 /* eslint no-loop-func: 0 */
 
-var path = require('path');
-var gulp = require('gulp');
+// var path = require('path');
+// var gulp = require('gulp');
 var rename = require('gulp-rename');
 var run = require('../');
 var util = require('./util');
 
 describe('gulp-run', function gulpRunTestCase() {
-  var inputFileName = path.join(__dirname, '_resource/input.txt');
+  // var inputFileName = path.join(__dirname, '_resource/input.txt');
 
   // it('includes `node_modules/.bin` on the PATH', function includeNodeModulesTest(done) {
   //   var nodeModulesPath = path.join(__dirname, '..', '..', '.bin');
@@ -135,20 +135,20 @@ describe('gulp-run', function gulpRunTestCase() {
     //   ;
     // });
 
-    it('maintains metadata of incoming file', function metaDataTest(done) {
-      gulp.src(inputFileName)
-        .pipe(util.inspect(function handleInspect(file) {
-          file.custom = 'custom metadata';
-        }))
-        .pipe(run('cat', {
-          verbosity: 0
-        }))
-        .pipe(util.inspect(function captureInspect(file) {
-          file.custom.should.equal('custom metadata');
-        }))
-        .on('finish', done)
-      ;
-    });
+  //   it('maintains metadata of incoming file', function metaDataTest(done) {
+  //     gulp.src(inputFileName)
+  //       .pipe(util.inspect(function handleInspect(file) {
+  //         file.custom = 'custom metadata';
+  //       }))
+  //       .pipe(run('cat', {
+  //         verbosity: 0
+  //       }))
+  //       .pipe(util.inspect(function captureInspect(file) {
+  //         file.custom.should.equal('custom metadata');
+  //       }))
+  //       .on('finish', done)
+  //     ;
+  //   });
   });
 
   describe('direct execution (`.exec`)', function execTestCase() {
