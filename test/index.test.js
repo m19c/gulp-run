@@ -96,16 +96,16 @@ describe('gulp-run', function gulpRunTestCase() {
   // });
 
   describe('in a vinyl pipeline', function vinylPipelineTestCase() {
-    it('works with buffers', function bufferTest(done) {
-      // use awk to extract the even lines of a file
-      gulp.src(inputFileName, { buffer: true })
-        .pipe(run('awk "NR % 2 == 0"', {
-          verbosity: 0
-        }))
-        .pipe(util.compare('2\n4\n6\n8\n10\n12\n'))
-        .on('finish', done)
-      ;
-    });
+    // it('works with buffers', function bufferTest(done) {
+    //   // use awk to extract the even lines of a file
+    //   gulp.src(inputFileName, { buffer: true })
+    //     .pipe(run('awk "NR % 2 == 0"', {
+    //       verbosity: 0
+    //     }))
+    //     .pipe(util.compare('2\n4\n6\n8\n10\n12\n'))
+    //     .on('finish', done)
+    //   ;
+    // });
 
     it('works with streams', function streamTest(done) {
       // use awk to extract the even lines of a file
