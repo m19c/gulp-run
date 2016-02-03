@@ -2,10 +2,7 @@
   "name": "gulp-run",
   "version": "1.6.12",
   "description": "Pipe to shell commands in gulp",
-  "main": "gulp-run.js",
-  "scripts": {
-    "test": "./node_modules/.bin/mocha spec -R spec"
-  },
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/cbarrick/gulp-run.git"
@@ -25,15 +22,26 @@
   },
   "homepage": "https://github.com/cbarrick/gulp-run",
   "devDependencies": {
-    "canopy": "^0.2.0",
-    "chai": "^2.2.0",
+    "babel-eslint": "^4.1.8",
+    "del": "^2.2.0",
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^4.0.0",
+    "eslint-plugin-react": "^3.16.1",
     "gulp": "^3.6.2",
+    "gulp-codacy": "^1.0.0",
+    "gulp-eslint": "^1.1.1",
+    "gulp-if": "^2.0.0",
+    "gulp-istanbul": "^0.10.3",
+    "gulp-mocha": "^2.2.0",
     "gulp-rename": "^1.2.0",
-    "mocha": "^2.1.0"
+    "gulp-sequence": "^0.4.4",
+    "gulp-util": "^3.0.0",
+    "mocha": "^2.1.0",
+    "should": "^8.2.1"
   },
   "dependencies": {
-    "gulp-util": "^3.0.0",
-    "lodash": "^3.7.0",
+    "lodash.defaults": "^4.0.1",
+    "lodash.template": "^4.0.2",
     "vinyl": "^0.4.6"
   }
 }
