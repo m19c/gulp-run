@@ -202,5 +202,14 @@ describe('gulp-run', function gulpRunTestCase() {
         .on('finish', done)
       ;
     });
+
+    it('#35 - no callback if command not found', function commandNotFoundTest(done) {
+      run('nonexistant', { verbosity: 0 })
+        .exec()
+        .on('error', function handleError() {
+          done();
+        })
+      ;
+    });
   });
 });
