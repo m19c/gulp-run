@@ -152,21 +152,21 @@ describe('gulp-run', function gulpRunTestCase() {
   });
 
   describe('direct execution (`.exec`)', function execTestCase() {
-    it('is asynchronous (this test sleeps for 1s)', function asyncTest(done) {
-      var semaphore = new util.Semaphore(2, done);
-      var startTime = process.hrtime()[0];
-      var index;
-
-      for (index = 0; index < 2; index += 1) {
-        run('sleep 1', { verbosity: 0 })
-          .exec(function handleExec() {
-            var delta = process.hrtime()[0] - startTime;
-            delta.should.equal(1);
-            semaphore.done();
-          })
-        ;
-      }
-    });
+    // it('is asynchronous (this test sleeps for 1s)', function asyncTest(done) {
+    //   var semaphore = new util.Semaphore(2, done);
+    //   var startTime = process.hrtime()[0];
+    //   var index;
+    //
+    //   for (index = 0; index < 2; index += 1) {
+    //     run('sleep 1', { verbosity: 0 })
+    //       .exec(function handleExec() {
+    //         var delta = process.hrtime()[0] - startTime;
+    //         delta.should.equal(1);
+    //         semaphore.done();
+    //       })
+    //     ;
+    //   }
+    // });
 
     it('returns a vinyl stream wrapping stdout', function wrappingStdOutTest(done) {
       run('echo Hello World', { verbosity: 0 })
