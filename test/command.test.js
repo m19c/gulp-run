@@ -21,5 +21,10 @@ describe('gulp-run/command', function commandTestCase() {
       var command = new Command('', { silent: true });
       command.options.verbosity.should.equal(1);
     });
+
+    it('uses the default options', function defaultOptionsTest() {
+      var command = new Command('');
+      command.options.should.be.an.Object();
+    });
   });
 });

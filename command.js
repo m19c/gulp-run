@@ -31,10 +31,10 @@ function Command(command, options) {
   });
 
   // include node_modules/.bin on the path when we execute the command.
-  previousPath = options.env.PATH;
-  options.env.PATH = path.join(this.options.cwd, 'node_modules', '.bin');
-  options.env.PATH += path.delimiter;
-  options.env.PATH += previousPath;
+  previousPath = this.options.env.PATH;
+  this.options.env.PATH = path.join(this.options.cwd, 'node_modules', '.bin');
+  this.options.env.PATH += path.delimiter;
+  this.options.env.PATH += previousPath;
 }
 
 /**

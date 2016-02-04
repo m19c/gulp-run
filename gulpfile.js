@@ -16,7 +16,7 @@ gulp.task('clean.dist', function cleanDistTask() {
 
 gulp.task('test.instrument', function instrumentTask() {
   return gulp
-    .src(['lib/**/*.js', 'index.js'])
+    .src(['command.js', 'index.js'])
     .pipe(istanbul({
       includeUntested: true
     }))
