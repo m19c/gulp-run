@@ -5,7 +5,7 @@
 
 var inherit = require('util').inherits;
 var Transform = require('stream').Transform;
-var Command = require('./lib/command');
+var Command = require('./command');
 
 /**
  * Creates a GulpRunner.

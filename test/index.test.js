@@ -10,7 +10,7 @@ describe('gulp-run', function gulpRunTestCase() {
   var inputFileName = path.join(__dirname, '_resource/input.txt');
 
   it('includes `node_modules/.bin` on the PATH', function includeNodeModulesTest(done) {
-    var nodeModulesPath = path.join(__dirname, '..', '..', '.bin');
+    var nodeModulesPath = path.join(__dirname, '..', 'node_modules', '.bin');
 
     run('echo $PATH', { verbosity: 0 }).exec()
       .pipe(util.compare(new RegExp('^' + nodeModulesPath)))
@@ -23,76 +23,6 @@ describe('gulp-run', function gulpRunTestCase() {
       .pipe(util.compare('/\n'))
       .on('finish', done)
     ;
-  });
-
-  describe.skip('verbosity levels', function verbosityTestCase() {
-    var colors = require('gulp-util').colors;
-    var output = '';
-    var stdoutWrite = process.stdout.write;
-
-    before(function handleBefore() {
-      process.stdout.write = function write(chunk, enc, callback) {
-        output += chunk.toString(enc);
-
-        if (typeof callback === 'function') {
-          process.nextTick(callback);
-        }
-      };
-    });
-
-    after(function handleAfter() {
-      process.stdout.write = stdoutWrite;
-    });
-
-    beforeEach(function handleBeforeEach() {
-      output = '';
-    });
-
-    it('verbosity 0 never prints', function neverPrintTest(done) {
-      (new run.Command('echo "testing verbosity:0"', { verbosity: 0 }))
-        .exec(function handleExec() {
-          output.should.match(/^$/);
-
-          done();
-        })
-      ;
-    });
-
-    it('verbosity 1 prints stderr when the command is done', function stdErrPrintTest(done) {
-      (new run.Command('echo "testing verbosity:1"', { verbosity: 1 }))
-        .exec(function handleExec() {
-          output = colors.stripColor(output);
-          output.should.match(/\$ echo "testing verbosity:1" # Silenced\s*\n/);
-
-          done();
-        })
-      ;
-    });
-
-    it(
-      'verbosity 2 prints stderr and stdout when the command is done',
-      function stdErrAndStdOutTest(done) {
-        (new run.Command('echo "testing verbosity:2"', { verbosity: 2 }))
-          .exec(function handleExec() {
-            output = colors.stripColor(output);
-            output.should.match(/\$ echo "testing verbosity:2"\s*\ntesting verbosity:2/);
-
-            done();
-          })
-        ;
-      }
-    );
-
-    it('verbosity 3 prints stderr and stdout in real time', function printAllTest(done) {
-      (new run.Command('echo "testing verbosity:3"', { verbosity: 3 }))
-        .exec(function handleExec() {
-          output = colors.stripColor(output);
-          output.should.match(/\$ echo "testing verbosity:3"\s*\ntesting verbosity:3/);
-
-          done();
-        })
-      ;
-    });
   });
 
   describe('in a vinyl pipeline', function vinylPipelineTestCase() {

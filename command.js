@@ -26,14 +26,13 @@ function Command(command, options) {
   this.options = defaults(options || {}, {
     cwd: process.cwd(),
     env: process.env,
-    silent: false,
-    verbosity: (this.options && this.options.silent) ? 1 : 2,
+    verbosity: (options && options.silent) ? 1 : 2,
     usePowerShell: false
   });
 
   // include node_modules/.bin on the path when we execute the command.
   previousPath = options.env.PATH;
-  options.env.PATH = path.join(__dirname, '..', '..', '.bin');
+  options.env.PATH = path.join(this.options.cwd, 'node_modules', '.bin');
   options.env.PATH += path.delimiter;
   options.env.PATH += previousPath;
 }
@@ -47,6 +46,7 @@ function Command(command, options) {
  * @return {Stream}
  */
 Command.prototype.exec = function exec(stdin, callback) {
+  var self = this;
   var command;
   var fileName;
   var directory;
@@ -129,7 +129,7 @@ Command.prototype.exec = function exec(stdin, callback) {
     var title = util.format(
       '$ %s%s',
       gutil.colors.blue(command),
-      (this.options.verbosity < 2) ? gutil.colors.grey(' # Silenced\n') : '\n'
+      (self.options.verbosity < 2) ? gutil.colors.grey(' # Silenced\n') : '\n'
     );
 
     context.write(title);
