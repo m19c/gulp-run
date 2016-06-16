@@ -1,5 +1,5 @@
 # gulp-run
-[![Build Status](https://travis-ci.org/MrBoolean/gulp-run.svg?branch=master)](https://travis-ci.org/MrBoolean/gulp-run) [![Codacy Badge](https://api.codacy.com/project/badge/grade/c40b0223c6314a1ebab8d0024cfd1d41)](https://www.codacy.com/app/mrboolean/gulp-run)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/c40b0223c6314a1ebab8d0024cfd1d41)](https://www.codacy.com/app/mrboolean/gulp-run)
 
 Use shell commands in your gulp or vinyl pipeline.
 
