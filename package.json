@@ -1,11 +1,11 @@
 {
   "name": "gulp-run",
-  "version": "1.6.12",
+  "version": "1.7.0",
   "description": "Pipe to shell commands in gulp",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/cbarrick/gulp-run.git"
+    "url": "git://github.com/MrBoolean/gulp-run.git"
   },
   "keywords": [
     "gulpplugin",
@@ -15,12 +15,12 @@
     "command",
     "sh"
   ],
-  "author": "Chris Barrick <cbarrick1@gmail.com>",
+  "author": "Marc Binder <marcandrebinder@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/cbarrick/gulp-run/issues"
+    "url": "https://github.com/MrBoolean/gulp-run/issues"
   },
-  "homepage": "https://github.com/cbarrick/gulp-run",
+  "homepage": "https://github.com/MrBoolean/gulp-run",
   "devDependencies": {
     "babel-eslint": "^4.1.8",
     "del": "^2.2.0",
