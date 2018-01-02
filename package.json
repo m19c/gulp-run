@@ -39,7 +39,7 @@
     "should": "^8.2.1"
   },
   "dependencies": {
-    "gulp-util": "^3.0.0",
+    "ansi-colors": "^1.0.1",
     "lodash.defaults": "^4.0.1",
     "lodash.template": "^4.0.2",
     "vinyl": "^0.4.6"
